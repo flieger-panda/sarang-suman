@@ -37,6 +37,17 @@ const CONFIG = {
      * extreme (and the plateau at the midpoint gets flatter/wider).
      */
     middleSlowdown: 4,
+    /**
+     * Hard cap on how fast the animation can play, in progress-per-second
+     * (the animation's own 1-second timescale, so 1 = its own natural
+     * pace). Scroll itself is never throttled — this only limits how
+     * quickly the visible animation can catch up to it, so a fast flick,
+     * scrollbar drag, or momentum fling can't skip straight to the settled
+     * state. Ordinary scrolling stays well under this and is untouched;
+     * lower it to make fast scrolling drag more, raise it to only rein in
+     * more extreme jumps.
+     */
+    maxSpeed: 2,
   },
 
   text: {
@@ -101,10 +112,18 @@ const CONFIG = {
   },
 
   gap: {
-    /** Columns of clearance either side of the name. */
+    /** Columns of clearance either side of the name — the ellipse's horizontal reach. */
     padding: 4,
-    /** Rows cleared around the name (odd numbers stay centred). */
+    /** Rows cleared around the name (odd numbers stay centred) — the ellipse's vertical reach. */
     rows: 3,
+    /**
+     * How far the ragged fringe reaches beyond the ellipse's edge, as a
+     * fraction of its radius. 0 = a smooth ellipse; higher = rougher,
+     * more jagged boundary. The core ellipse itself always clears.
+     */
+    raggedness: 0.5,
+    /** Change for a different random boundary; same value = same boundary. */
+    seed: 8675309,
     /** How long the clearing takes. */
     fadeSpan: 0.16,
     /** Beat between the wave arriving and the clearing starting. */
@@ -194,9 +213,25 @@ function buildScene(
 
   const centerRow = Math.floor(rows / 2);
   const nameStartCol = Math.floor(cols / 2) - Math.floor(text.name.length / 2);
-  const gapFirstCol = nameStartCol - gap.padding;
   const gapLastCol = nameStartCol + text.name.length + gap.padding;
-  const gapHalfHeight = Math.floor(gap.rows / 2);
+
+  // The clearing rides an ellipse rather than a rectangle: its core (radius
+  // 1 in normalised dx/dy) always clears, sized to match the old box's
+  // reach; beyond that, a shell of independently-random cells with
+  // odds fading out over `raggedness` gives the edge a jagged, eroded look
+  // instead of a hard boundary.
+  const gapCenterCol = nameStartCol + (text.name.length - 1) / 2;
+  const gapRadiusX = text.name.length / 2 + gap.padding;
+  const gapRadiusY = Math.max(Math.floor(gap.rows / 2), 0.5);
+  const gapRandom = makeRandom(gap.seed);
+  const inGap = (row: number, col: number) => {
+    const dx = (col - gapCenterCol) / gapRadiusX;
+    const dy = (row - centerRow) / gapRadiusY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist <= 1) return true;
+    if (gap.raggedness <= 0 || dist >= 1 + gap.raggedness) return false;
+    return gapRandom() < 1 - (dist - 1) / gap.raggedness;
+  };
 
   const runway = CONFIG.path.runway;
 
@@ -273,9 +308,7 @@ function buildScene(
       // variation reads as organic rather than as horizontal banding.
       groups[col * bands + (row % bands)].appendChild(span);
 
-      const inGapRows = Math.abs(row - centerRow) <= gapHalfHeight;
-      const inGapCols = col >= gapFirstCol && col <= gapLastCol;
-      if (inGapRows && inGapCols && !isName) gapCharacters.push(span);
+      if (inGap(row, col) && !isName) gapCharacters.push(span);
     }
   }
 
@@ -329,18 +362,25 @@ function buildScene(
   // Offsets are [target progress, container progress] pairs: scroll starts
   // driving this once the section's top meets the viewport top, and finishes
   // once `animateOver` screens of it have passed that same line.
-  //
-  // This binds via a callback rather than handing `scroll()` the animations
-  // directly, specifically so `slowMiddle` gets a chance to warp progress
-  // first — a direct binding is marginally cheaper (native ScrollTimeline,
-  // no per-frame JS) but can only ever move at scroll's own pace.
   const endsAt = CONFIG.scroll.animateOver / CONFIG.scroll.sectionHeight;
+
+  // Scroll only ever sets *where the animation should be*; a rAF loop below
+  // chases that target at up to `maxSpeed` and is what actually drives
+  // `.time`. That indirection is what lets a fast flick, scrollbar drag, or
+  // momentum fling still play the wave through instead of skipping straight
+  // to wherever scroll landed — and, as before, gives `slowMiddle` a chance
+  // to warp progress before it reaches the animations.
+  let targetTime = 0;
+  let currentTime: number | null = null;
+  let lastFrame = 0;
+
+  // Set up before the rAF loop below: `scroll`'s own first update also
+  // arrives via rAF, so registering it first here orders it ahead of
+  // `tick`'s first call — `targetTime` already holds the real scroll
+  // position (not just its 0 default) the first time `tick` reads it.
   const detach = scroll(
     (progress: number) => {
-      const t = slowMiddle(progress, CONFIG.scroll.middleSlowdown);
-      running.forEach((animation) => {
-        animation.time = t;
-      });
+      targetTime = slowMiddle(progress, CONFIG.scroll.middleSlowdown);
     },
     {
       target: section,
@@ -351,8 +391,28 @@ function buildScene(
     },
   );
 
+  let frame = requestAnimationFrame(function tick(now) {
+    if (currentTime === null) {
+      // First frame: jump straight to the real target rather than chasing
+      // it from 0, so mounting mid-scroll (or a resize rebuild) never
+      // plays a spurious catch-up.
+      currentTime = targetTime;
+    } else {
+      const maxStep = (CONFIG.scroll.maxSpeed * (now - lastFrame)) / 1000;
+      const diff = targetTime - currentTime;
+      currentTime += Math.sign(diff) * Math.min(Math.abs(diff), maxStep);
+    }
+    lastFrame = now;
+    const time = currentTime;
+    running.forEach((animation) => {
+      animation.time = time;
+    });
+    frame = requestAnimationFrame(tick);
+  });
+
   return () => {
     detach();
+    cancelAnimationFrame(frame);
     running.forEach((animation) => animation.stop());
     stage.replaceChildren();
   };
