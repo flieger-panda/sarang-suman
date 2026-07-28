@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import WaveHero from "./components/WaveHero";
+import PageTransition from "./components/PageTransition";
 import HomeMenu from "./components/HomeMenu";
 import Skills from "./pages/Skills";
 import Portfolio from "./pages/Portfolio";
@@ -9,7 +9,6 @@ import Music from "./pages/Music";
 function Home() {
   return (
     <div className="bg-black">
-      <WaveHero />
       <HomeMenu />
     </div>
   );
@@ -17,13 +16,16 @@ function Home() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/skills" element={<Skills />} />
-      <Route path="/portfolio" element={<Portfolio />} />
-      <Route path="/about-me" element={<AboutMe />} />
-      <Route path="/music" element={<Music />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/skills" element={<Skills />} />
+        <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/about-me" element={<AboutMe />} />
+        <Route path="/music" element={<Music />} />
+      </Routes>
+      <PageTransition />
+    </>
   );
 }
 
