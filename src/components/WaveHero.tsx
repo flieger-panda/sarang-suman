@@ -67,6 +67,21 @@ type Props = {
 
 export default function WaveHero({ sectionRef }: Props) {
   const handRef = useRef<HTMLDivElement>(null);
+  const handGroupRef = useRef<HTMLDivElement>(null);
+
+  const scrollToMenu = () => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const targetY =
+      section.getBoundingClientRect().bottom +
+      window.scrollY -
+      window.innerHeight;
+    animate(document.documentElement, {
+      scrollTop: targetY,
+      duration: 4000,
+      ease: "inOut(2)",
+    });
+  };
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -104,7 +119,8 @@ export default function WaveHero({ sectionRef }: Props) {
   useEffect(() => {
     const section = sectionRef.current;
     const hand = handRef.current;
-    if (!section || !hand) return;
+    const handGroup = handGroupRef.current;
+    if (!section || !hand || !handGroup) return;
 
     const rock = animate(hand, {
       rotate: [-6, 6],
@@ -114,7 +130,7 @@ export default function WaveHero({ sectionRef }: Props) {
       ease: "inOutSine",
     });
 
-    const hide = animate(hand, {
+    const hide = animate(handGroup, {
       translateY: [0, 400],
       ease: "inOut(2)",
       autoplay: onScroll({
@@ -131,25 +147,38 @@ export default function WaveHero({ sectionRef }: Props) {
     };
   }, [sectionRef]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      const section = sectionRef.current;
+      if (!section) return;
+      const targetY =
+        section.getBoundingClientRect().bottom +
+        window.scrollY -
+        window.innerHeight;
+      // Only fire while the hand is still showing (i.e. we haven't
+      // already scrolled past the point where it hides itself).
+      if (window.scrollY >= targetY) return;
+      scrollToMenu();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [sectionRef]);
+
   return (
     <>
-      <div className="pointer-events-none fixed inset-x-0 bottom-4 z-10 flex justify-center">
+      <div
+        ref={handGroupRef}
+        className="pointer-events-none fixed inset-x-0 bottom-4 z-10 flex items-center justify-center gap-2"
+      >
+        <span className="animate-blink font-mono text-lg text-white [text-shadow:0_0_14px_rgba(255,255,255,1)]">
+          &gt;
+        </span>
         <div
           ref={handRef}
-          onClick={() => {
-            const section = sectionRef.current;
-            if (!section) return;
-            const targetY =
-              section.getBoundingClientRect().bottom +
-              window.scrollY -
-              window.innerHeight;
-            animate(document.documentElement, {
-              scrollTop: targetY,
-              duration: 4000,
-              ease: "inOut(2)",
-            });
-          }}
-          className="origin-bottom cursor-pointer text-4xl pointer-events-auto"
+          onClick={scrollToMenu}
+          className="origin-bottom cursor-pointer text-4xl pointer-events-auto [text-shadow:0_0_14px_rgba(255,255,255,1)]"
         >
           👋🏾
         </div>
