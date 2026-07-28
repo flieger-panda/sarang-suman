@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { animate, stagger, onScroll } from "animejs";
 import {
   LINE_COUNT,
@@ -34,7 +34,10 @@ export default function HomeMenu({ sectionRef }: Props) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  useEffect(() => {
+  // useLayoutEffect so the reveal animation's initial opacity-0 state is
+  // set before the browser's first paint, avoiding a flash of fully
+  // visible menu text.
+  useLayoutEffect(() => {
     const section = sectionRef.current;
     const menu = menuRef.current;
     if (!section || !menu) return;

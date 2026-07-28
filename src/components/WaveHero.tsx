@@ -1,4 +1,4 @@
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import { animate, stagger, onScroll } from "animejs";
 import {
   LINE_COUNT,
@@ -83,7 +83,11 @@ export default function WaveHero({ sectionRef }: Props) {
     });
   };
 
-  useEffect(() => {
+  // useLayoutEffect (not useEffect) so the entrance/hide animations set
+  // their initial styles before the browser's first paint — otherwise
+  // the raw, fully-visible DOM flashes on screen for a frame before
+  // animejs's onScroll sync hides it.
+  useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
@@ -116,7 +120,7 @@ export default function WaveHero({ sectionRef }: Props) {
     };
   }, [sectionRef]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const section = sectionRef.current;
     const hand = handRef.current;
     const handGroup = handGroupRef.current;
