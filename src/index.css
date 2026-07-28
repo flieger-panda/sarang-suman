@@ -3,6 +3,7 @@
 
 @theme {
   --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: Helvetica, "Helvetica Neue", Arial, sans-serif;
   --animate-blink: blink 1s step-end infinite;
 }
 
