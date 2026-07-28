@@ -1,11 +1,13 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { animate, stagger, onScroll } from "animejs";
+import {
+  LINE_COUNT,
+  CHARS_PER_LINE,
+  NAME,
+  CENTER_ROW_INDEX,
+  NAME_START,
+} from "./waveHeroLayout";
 
-const LINE_COUNT = 32;
-const CHARS_PER_LINE = 80;
-const NAME = "sarang suman";
-const CENTER_ROW_INDEX = Math.floor(LINE_COUNT / 2) - 3;
-const NAME_START = Math.floor((CHARS_PER_LINE - NAME.length) / 2);
 const NAME_CENTER_COL = NAME_START + NAME.length / 2;
 
 const NOISE_CHARS = ["_", "."];
@@ -59,8 +61,11 @@ const CENTER_ROW_AFTER = ROW_CHARS[CENTER_ROW_INDEX]
   .slice(NAME_START + NAME.length)
   .join(" ");
 
-export default function WaveHero() {
-  const sectionRef = useRef<HTMLElement>(null);
+type Props = {
+  sectionRef: RefObject<HTMLElement | null>;
+};
+
+export default function WaveHero({ sectionRef }: Props) {
   const handRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -69,7 +74,6 @@ export default function WaveHero() {
 
     const lines = section.querySelectorAll("[data-line]");
     const noise = section.querySelectorAll("[data-noise]");
-    const cursor = section.querySelector("[data-cursor]");
 
     const scrollTrigger = () =>
       onScroll({
@@ -91,19 +95,11 @@ export default function WaveHero() {
       autoplay: scrollTrigger(),
     });
 
-    const fadeCursor = cursor
-      ? animate(cursor, {
-          opacity: [{ to: 0, duration: 65 }, { to: 1, duration: 35 }],
-          autoplay: scrollTrigger(),
-        })
-      : null;
-
     return () => {
       entrance.revert();
       fadeNoise.revert();
-      fadeCursor?.revert();
     };
-  }, []);
+  }, [sectionRef]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -133,7 +129,7 @@ export default function WaveHero() {
       rock.revert();
       hide.revert();
     };
-  }, []);
+  }, [sectionRef]);
 
   return (
     <>
@@ -168,11 +164,6 @@ export default function WaveHero() {
                 className="whitespace-pre font-mono text-lg text-white"
               >
                 <span data-noise>{CENTER_ROW_BEFORE}</span>{" "}
-                <span data-cursor className="inline-block opacity-0">
-                  <span className="animate-blink [text-shadow:0_0_14px_rgba(255,255,255,1)]">
-                    &gt;
-                  </span>
-                </span>{" "}
                 <span className="[text-shadow:0_0_14px_rgba(255,255,255,1)]">
                   {CENTER_ROW_NAME}
                 </span>{" "}

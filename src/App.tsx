@@ -1,12 +1,14 @@
+import { useRef } from "react";
 import WaveHero from "./components/WaveHero";
-import type { ComponentType } from "react";
-
-const WaveHeroComponent = WaveHero as unknown as ComponentType;
+import HomeMenu from "./components/HomeMenu";
 
 function App() {
+  const sectionRef = useRef<HTMLElement>(null);
+
   return (
     <div className="bg-black">
-      <WaveHeroComponent />
+      <WaveHero sectionRef={sectionRef} />
+      <HomeMenu sectionRef={sectionRef} />
     </div>
   );
 }
