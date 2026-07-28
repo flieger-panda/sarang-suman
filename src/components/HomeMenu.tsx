@@ -5,16 +5,10 @@ import {
   useMemo,
   useRef,
   useState,
-  type RefObject,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { animate, stagger, onScroll } from "animejs";
-import {
-  LINE_COUNT,
-  CHARS_PER_LINE,
-  CENTER_ROW_INDEX,
-  NAME_START,
-} from "./waveHeroLayout";
+import { animate, stagger } from "animejs";
+import { LINE_COUNT, CENTER_ROW_INDEX, NAME } from "./waveHeroLayout";
 import PixelIcon, { type PixelBitmap } from "./PixelIcon";
 import { PIXEL_ICONS } from "./pixelIcons";
 
@@ -83,24 +77,13 @@ type FlatEntry =
 const TOP_ROW_GAP = 2;
 const SUB_ROW_GAP = 1;
 
-// The cursor row is built as a full CHARS_PER_LINE-column row (same as every
-// grid row) with everything blanked except the cursor, so its total width —
-// and therefore its centered position — exactly matches the noise grid's
-// center row, putting the cursor directly before where the name renders.
-const CURSOR_COL = NAME_START - 1;
-const CURSOR_ROW_BEFORE = Array.from({ length: CURSOR_COL }, () => " ").join(
-  " ",
-);
-const CURSOR_ROW_AFTER = Array.from(
-  { length: CHARS_PER_LINE - CURSOR_COL - 1 },
-  () => " ",
-).join(" ");
+// Delay before the menu starts fading in, tuned to overlap the tail of
+// WaveHero's noise fade-out (which settles ~1550ms after mount) so the
+// wave dissolves into the menu instead of leaving a blank gap between
+// the intro ending and the menu appearing.
+const REVEAL_DELAY = 900;
 
-type Props = {
-  sectionRef: RefObject<HTMLElement | null>;
-};
-
-export default function HomeMenu({ sectionRef }: Props) {
+export default function HomeMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -135,30 +118,28 @@ export default function HomeMenu({ sectionRef }: Props) {
 
   // useLayoutEffect so the reveal animation's initial opacity-0 state is
   // set before the browser's first paint, avoiding a flash of fully
-  // visible menu text.
+  // visible menu text. The animation itself starts after REVEAL_DELAY
+  // (a plain timer, not scroll-linked — there is no scroll anymore).
   useLayoutEffect(() => {
-    const section = sectionRef.current;
     const menu = menuRef.current;
-    if (!section || !menu) return;
+    if (!menu) return;
 
     const chars = menu.querySelectorAll("[data-char]");
+    let reveal: ReturnType<typeof animate> | undefined;
 
-    const reveal = animate(chars, {
-      opacity: [0, 1],
-      delay: stagger(18),
-      duration: 1,
-      autoplay: onScroll({
-        target: section,
-        sync: "play play pause reverse",
-        enter: "end end-=10%",
-        leave: "end end-=1%",
-      }),
-    });
+    const timeout = window.setTimeout(() => {
+      reveal = animate(chars, {
+        opacity: [0, 1],
+        delay: stagger(18),
+        duration: 1,
+      });
+    }, REVEAL_DELAY);
 
     return () => {
-      reveal.revert();
+      window.clearTimeout(timeout);
+      reveal?.revert();
     };
-  }, [sectionRef]);
+  }, []);
 
   const activate = useCallback(
     (entry: FlatEntry) => {
@@ -218,9 +199,11 @@ export default function HomeMenu({ sectionRef }: Props) {
       {Array.from({ length: LINE_COUNT }, (_, row) => {
         if (row === CENTER_ROW_INDEX) {
           return (
-            <div key={row} className="whitespace-pre">
-              <span className="invisible">{CURSOR_ROW_BEFORE}</span>{" "}
-              <span data-char className="inline-block opacity-0">
+            <div key={row} className="relative whitespace-pre">
+              <span
+                data-char
+                className="absolute right-full mr-2 inline-block opacity-0"
+              >
                 <span
                   className={
                     selectedIndex === -1
@@ -230,8 +213,14 @@ export default function HomeMenu({ sectionRef }: Props) {
                 >
                   &gt;
                 </span>
-              </span>{" "}
-              <span className="invisible">{CURSOR_ROW_AFTER}</span>
+              </span>
+              <span className="[text-shadow:0_0_14px_rgba(255,255,255,1)]">
+                {NAME.split("").map((ch, i) => (
+                  <span key={i} data-char className="inline-block opacity-0">
+                    {ch}
+                  </span>
+                ))}
+              </span>
             </div>
           );
         }
@@ -254,14 +243,17 @@ export default function HomeMenu({ sectionRef }: Props) {
             return (
               <div
                 key={entryKey}
-                className="pointer-events-auto cursor-pointer whitespace-pre"
+                className="relative pointer-events-auto cursor-pointer whitespace-pre"
                 onMouseEnter={() => setSelectedIndex(flatIndex)}
                 onClick={() => {
                   setSelectedIndex(flatIndex);
                   activate(entry);
                 }}
               >
-                <span data-char className="inline-block opacity-0">
+                <span
+                  data-char
+                  className="absolute right-full mr-2 inline-block opacity-0"
+                >
                   <span
                     className={
                       isSelected
@@ -271,7 +263,7 @@ export default function HomeMenu({ sectionRef }: Props) {
                   >
                     &gt;
                   </span>
-                </span>{" "}
+                </span>
                 <span
                   className={
                     isSelected
@@ -301,7 +293,7 @@ export default function HomeMenu({ sectionRef }: Props) {
           return (
             <div
               key={entryKey}
-              className="pointer-events-auto cursor-pointer whitespace-pre text-sm"
+              className="relative pointer-events-auto cursor-pointer whitespace-pre text-sm"
               onMouseEnter={() => setSelectedIndex(flatIndex)}
               onClick={() => {
                 setSelectedIndex(flatIndex);
@@ -310,13 +302,14 @@ export default function HomeMenu({ sectionRef }: Props) {
             >
               <span
                 className={
-                  isSelected
+                  "absolute right-full mr-2 " +
+                  (isSelected
                     ? "animate-blink [text-shadow:0_0_14px_rgba(255,255,255,1)]"
-                    : "invisible"
+                    : "invisible")
                 }
               >
                 &gt;
-              </span>{" "}
+              </span>
               {entry.icon && (
                 <PixelIcon
                   bitmap={entry.icon}
