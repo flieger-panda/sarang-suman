@@ -1,4 +1,4 @@
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { animate, stagger, onScroll } from "animejs";
 import {
   LINE_COUNT,
@@ -32,6 +32,7 @@ type Props = {
 
 export default function HomeMenu({ sectionRef }: Props) {
   const menuRef = useRef<HTMLDivElement>(null);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -57,6 +58,21 @@ export default function HomeMenu({ sectionRef }: Props) {
     };
   }, [sectionRef]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex((i) => Math.min(i + 1, MENU_ITEMS.length - 1));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex((i) => Math.max(i - 1, -1));
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <div
       ref={menuRef}
@@ -68,7 +84,13 @@ export default function HomeMenu({ sectionRef }: Props) {
             <div key={row} className="whitespace-pre">
               <span className="invisible">{CURSOR_ROW_BEFORE}</span>{" "}
               <span data-char className="inline-block opacity-0">
-                <span className="animate-blink [text-shadow:0_0_14px_rgba(255,255,255,1)]">
+                <span
+                  className={
+                    selectedIndex === -1
+                      ? "animate-blink [text-shadow:0_0_14px_rgba(255,255,255,1)]"
+                      : "invisible"
+                  }
+                >
                   &gt;
                 </span>
               </span>{" "}
@@ -79,13 +101,38 @@ export default function HomeMenu({ sectionRef }: Props) {
 
         const menuIndex = MENU_ROW_INDICES.indexOf(row);
         if (menuIndex !== -1) {
+          const isSelected = selectedIndex === menuIndex;
           return (
-            <div key={row} className="whitespace-pre">
-              {MENU_ITEMS[menuIndex].split("").map((ch, i) => (
-                <span key={i} data-char className="inline-block opacity-0">
-                  {ch}
+            <div
+              key={row}
+              className="pointer-events-auto cursor-pointer whitespace-pre"
+              onMouseEnter={() => setSelectedIndex(menuIndex)}
+              onClick={() => setSelectedIndex(menuIndex)}
+            >
+              <span data-char className="inline-block opacity-0">
+                <span
+                  className={
+                    isSelected
+                      ? "animate-blink [text-shadow:0_0_14px_rgba(255,255,255,1)]"
+                      : "invisible"
+                  }
+                >
+                  &gt;
                 </span>
-              ))}
+              </span>{" "}
+              <span
+                className={
+                  isSelected
+                    ? "font-bold [text-shadow:0_0_14px_rgba(255,255,255,1)]"
+                    : ""
+                }
+              >
+                {MENU_ITEMS[menuIndex].split("").map((ch, i) => (
+                  <span key={i} data-char className="inline-block opacity-0">
+                    {ch}
+                  </span>
+                ))}
+              </span>
             </div>
           );
         }
