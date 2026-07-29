@@ -8,8 +8,8 @@ import {
   type PageTransitionHandle,
 } from "./components/TransitionContext";
 import Skills from "./pages/Skills";
-import Portfolio from "./pages/Portfolio";
-import PortfolioProject from "./pages/PortfolioProject";
+import Projects from "./pages/Projects";
+import ProjectDetail from "./pages/ProjectDetail";
 import AboutMe from "./pages/AboutMe";
 import Music from "./pages/Music";
 
@@ -50,8 +50,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/skills" element={<Skills />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/portfolio/:slug" element={<PortfolioProject />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:slug" element={<ProjectDetail />} />
           <Route path="/about-me" element={<AboutMe />} />
           <Route path="/music" element={<Music />} />
         </Routes>

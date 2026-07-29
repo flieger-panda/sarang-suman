@@ -24,11 +24,11 @@ type MenuNode =
 const MENU: MenuNode[] = [
   { label: "about me", kind: "link", href: "/about-me" },
   {
-    label: "projects",
+    label: "portfolio",
     kind: "submenu",
     items: [
       { label: "skills", href: "/skills" },
-      { label: "portfolio", href: "/portfolio" },
+      { label: "projects", href: "/projects" },
     ],
   },
   {
@@ -42,18 +42,18 @@ const MENU: MenuNode[] = [
         icon: PIXEL_ICONS.linkedin,
       },
       {
-        label: "instagram",
-        href: INSTAGRAM_URL,
-        external: true,
-        icon: PIXEL_ICONS.instagram,
-      },
-      {
         label: "github",
         href: GITHUB_URL,
         external: true,
         icon: PIXEL_ICONS.github,
       },
       { label: "music", href: "/music", icon: PIXEL_ICONS.music },
+      {
+        label: "instagram",
+        href: INSTAGRAM_URL,
+        external: true,
+        icon: PIXEL_ICONS.instagram,
+      },
     ],
   },
 ];

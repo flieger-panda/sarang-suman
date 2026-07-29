@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { portfolioProjects } from "../lib/content";
+import { projects } from "../lib/content";
 import { useCharReveal } from "../hooks/useCharReveal";
 import { revealChars } from "../lib/revealChars";
 
@@ -9,9 +9,9 @@ type Entry = { label: string; href: string };
 const BACK_ENTRY: Entry = { label: "< back", href: "/" };
 const ENTRIES: Entry[] = [
   BACK_ENTRY,
-  ...portfolioProjects.map((project) => ({
+  ...projects.map((project) => ({
     label: project.title,
-    href: `/portfolio/${project.slug}`,
+    href: `/projects/${project.slug}`,
   })),
 ];
 
@@ -53,7 +53,7 @@ function CursorLink({
   );
 }
 
-export default function Portfolio() {
+export default function Projects() {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   useCharReveal(containerRef);
@@ -89,10 +89,10 @@ export default function Portfolio() {
           />
         </div>
         <h1 className="font-heading mb-8 text-2xl font-bold text-white">
-          {revealChars("portfolio")}
+          {revealChars("projects")}
         </h1>
         <ul className="space-y-3">
-          {portfolioProjects.map((project, i) => {
+          {projects.map((project, i) => {
             const index = i + 1;
             return (
               <li key={project.slug}>

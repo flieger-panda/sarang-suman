@@ -1,4 +1,4 @@
-// Portfolio and about-me copy lives in content/*.md so it can be edited
+// Projects and about-me copy lives in content/*.md so it can be edited
 // without touching component code. Vite inlines these as raw strings at
 // build time (import.meta.glob), so this stays a fully static site — no
 // runtime fetch, no backend.
@@ -15,7 +15,7 @@ const skillsModules = import.meta.glob("../../content/skills.md", {
   eager: true,
 }) as Record<string, string>;
 
-const portfolioModules = import.meta.glob("../../content/portfolio/*.md", {
+const projectModules = import.meta.glob("../../content/projects/*.md", {
   query: "?raw",
   import: "default",
   eager: true,
@@ -51,16 +51,14 @@ function dateSortKey(date: string): string {
   return date.toLowerCase() === "present" ? "9999-99" : date;
 }
 
-export type PortfolioProject = {
+export type Project = {
   slug: string;
   title: string;
   date: string;
   content: string;
 };
 
-export const portfolioProjects: PortfolioProject[] = Object.entries(
-  portfolioModules,
-)
+export const projects: Project[] = Object.entries(projectModules)
   .map(([path, raw]) => {
     const slug = slugFromPath(path);
     const { date, content } = parseFrontmatter(raw);
@@ -68,8 +66,6 @@ export const portfolioProjects: PortfolioProject[] = Object.entries(
   })
   .sort((a, b) => dateSortKey(b.date).localeCompare(dateSortKey(a.date)));
 
-export function getPortfolioProject(
-  slug: string | undefined,
-): PortfolioProject | undefined {
-  return portfolioProjects.find((project) => project.slug === slug);
+export function getProject(slug: string | undefined): Project | undefined {
+  return projects.find((project) => project.slug === slug);
 }
