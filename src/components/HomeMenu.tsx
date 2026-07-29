@@ -11,6 +11,7 @@ import { animate, stagger } from "animejs";
 import { LINE_COUNT, CENTER_ROW_INDEX, NAME } from "./waveHeroLayout";
 import PixelIcon, { type PixelBitmap } from "./PixelIcon";
 import { PIXEL_ICONS } from "./pixelIcons";
+import { useRevealed } from "./RevealContext";
 
 // TODO: replace with real profile URLs.
 const LINKEDIN_URL = "https://www.linkedin.com/in/sarangsuman";
@@ -77,15 +78,10 @@ type FlatEntry =
 const TOP_ROW_GAP = 2;
 const SUB_ROW_GAP = 1;
 
-// Delay before the menu starts fading in, tuned to overlap the tail of
-// WaveHero's noise fade-out (which settles ~1550ms after mount) so the
-// wave dissolves into the menu instead of leaving a blank gap between
-// the intro ending and the menu appearing.
-const REVEAL_DELAY = 900;
-
 export default function HomeMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const revealed = useRevealed();
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
@@ -116,30 +112,26 @@ export default function HomeMenu() {
     });
   }, [flat]);
 
-  // useLayoutEffect so the reveal animation's initial opacity-0 state is
-  // set before the browser's first paint, avoiding a flash of fully
-  // visible menu text. The animation itself starts after REVEAL_DELAY
-  // (a plain timer, not scroll-linked — there is no scroll anymore).
+  // Waits for PageTransition's curtain to actually finish fading (see
+  // revealSignal) instead of guessing a fixed delay, so the menu text
+  // never starts appearing while the wave still covers the screen.
+  // useLayoutEffect so the opacity-0 starting state is set before the
+  // browser's first paint, avoiding a flash of fully visible menu text.
   useLayoutEffect(() => {
     const menu = menuRef.current;
-    if (!menu) return;
+    if (!menu || !revealed) return;
 
     const chars = menu.querySelectorAll("[data-char]");
-    let reveal: ReturnType<typeof animate> | undefined;
-
-    const timeout = window.setTimeout(() => {
-      reveal = animate(chars, {
-        opacity: [0, 1],
-        delay: stagger(18),
-        duration: 1,
-      });
-    }, REVEAL_DELAY);
+    const reveal = animate(chars, {
+      opacity: [0, 1],
+      delay: stagger(18),
+      duration: 1,
+    });
 
     return () => {
-      window.clearTimeout(timeout);
-      reveal?.revert();
+      reveal.revert();
     };
-  }, []);
+  }, [revealed]);
 
   const activate = useCallback(
     (entry: FlatEntry) => {
