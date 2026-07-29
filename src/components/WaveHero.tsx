@@ -45,11 +45,36 @@ const ROW_CHARS = Array.from({ length: LINE_COUNT }, (_, row) =>
 // so the transition is always a continuation of whatever the idle drift
 // was already doing, never a handoff to a separate effect.
 const IDLE_HIDDEN = -1;
-const IDLE_PEEK = -0.82;
+const IDLE_PEEK = -0.89;
 
-function idleFraction(t: number, periodMs: number, phase: number) {
-  const wave = (Math.sin((t / periodMs) * Math.PI * 2 + phase) + 1) / 2; // 0..1
-  return IDLE_HIDDEN + (IDLE_PEEK - IDLE_HIDDEN) * wave;
+// Idle drift has two independent things going on, like a real wave: the
+// x-intercept — the point the row oscillates around — itself eases onto
+// and off screen (that IS the wave arriving/receding), phase-shifted row
+// to row so it reads as a single front travelling down the screen. Riding
+// on top of wherever that intercept currently sits, a swell ripple
+// oscillates at fixed amplitude — a constant height that does NOT change
+// just because the intercept has swept further in or out — with a
+// smaller, per-row-randomized chop sine layered on for texture.
+const INTERCEPT_PERIOD_MS = 5200;
+const INTERCEPT_CYCLES = 1.5; // how many intercept cycles span the full row stack — needs to be enough of a cycle to read as a crest, not a near-flat ramp
+
+const SWELL_PERIOD_MS = 1800;
+const SWELL_AMPLITUDE = 0.03; // ripple's height, as a fraction of the row's own width — fixed, independent of the intercept's position, and kept subordinate to the intercept's own ~0.18 span so it reads as texture on the curve, not noise erasing it
+const CHOP_PERIOD_MS = 12000;
+const CHOP_AMPLITUDE = 0; // chop's weight relative to a full-strength ripple, 0..1
+
+function idleFraction(t: number, row: RowState) {
+  const interceptWave =
+    (Math.sin((t / INTERCEPT_PERIOD_MS) * Math.PI * 2 + row.interceptPhase) + 1) / 2; // 0..1
+  const intercept = IDLE_HIDDEN + (IDLE_PEEK - IDLE_HIDDEN) * interceptWave;
+
+  const swell = Math.sin((t / SWELL_PERIOD_MS) * Math.PI * 2 + row.swellPhase);
+  const chop = Math.sin(
+    (t / (CHOP_PERIOD_MS * row.chopRate)) * Math.PI * 2 + row.chopPhase,
+  );
+  const ripple = (swell + chop * CHOP_AMPLITUDE) / (1 + CHOP_AMPLITUDE); // -1..1, fixed height
+
+  return intercept + ripple * SWELL_AMPLITUDE;
 }
 
 const SURGE_DURATION = 550;
@@ -62,6 +87,14 @@ const RECEDE_DURATION = 550;
 const STAGGER_MS = 6;
 const STAGGER_JITTER = 12;
 
+type RowState = {
+  interceptPhase: number;
+  swellPhase: number;
+  chopPhase: number;
+  chopRate: number;
+  surge: { value: number };
+};
+
 export type WaveHeroHandle = {
   /** Extends the current drift into a full sweep that covers the screen. */
   surge: () => Promise<void>;
@@ -72,17 +105,26 @@ export type WaveHeroHandle = {
 const WaveHero = forwardRef<WaveHeroHandle>(function WaveHero(_props, ref) {
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Each row's own tempo/phase (the "random start points" that keep the
-  // drift looking like an irregular shoreline) plus a live `surge` value
-  // read every frame: 0 is pure idle drift, 1 is fully swept into view.
-  // Randomized once and never touched again — WaveHero itself never
-  // remounts — so a transition's surge is always layered on top of
-  // whichever phase each row already happens to be in.
+  // interceptPhase is a coherent gradient across rows (row order, not
+  // randomness, decides it) so the shared intercept sweep reads as one
+  // front travelling down the stack. swellPhase/chopPhase/chopRate are
+  // randomized per row — the ripple texture riding on top of that sweep —
+  // plus a live `surge` value read every frame: 0 is pure idle drift, 1 is
+  // fully swept into view. Randomized once and never touched again —
+  // WaveHero itself never remounts — so a transition's surge is always
+  // layered on top of whichever phase each row already happens to be in.
   const rows = useMemo(
     () =>
-      Array.from({ length: LINE_COUNT }, () => ({
-        periodMs: 3200 + Math.random() * 2600,
-        phase: Math.random() * Math.PI * 2,
+      Array.from({ length: LINE_COUNT }, (_, row) => ({
+        // + PI/2 puts the crest (interceptWave === 1) at CENTER_ROW_INDEX at
+        // t=0, so the wave starts bulged out around the name and tapers
+        // toward the top/bottom rows instead of an arbitrary phase.
+        interceptPhase:
+          ((row - CENTER_ROW_INDEX) / LINE_COUNT) * Math.PI * 2 * INTERCEPT_CYCLES +
+          Math.PI / 2,
+        swellPhase: Math.random() * Math.PI * 2,
+        chopPhase: Math.random() * Math.PI * 2,
+        chopRate: 0.6 + Math.random() * 0.8,
         surge: { value: 0 },
       })),
     [],
@@ -95,7 +137,7 @@ const WaveHero = forwardRef<WaveHeroHandle>(function WaveHero(_props, ref) {
       rows.forEach((row, i) => {
         const el = lineRefs.current[i];
         if (!el) return;
-        const idle = idleFraction(t, row.periodMs, row.phase);
+        const idle = idleFraction(t, row);
         const fraction = idle + (0 - idle) * row.surge.value;
         el.style.transform = `translateX(${fraction * 100}%)`;
       });
