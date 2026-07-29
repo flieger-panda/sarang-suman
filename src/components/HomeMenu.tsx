@@ -4,6 +4,7 @@ import { LINE_COUNT, CENTER_ROW_INDEX, NAME } from "./waveHeroLayout";
 import PixelIcon, { type PixelBitmap } from "./PixelIcon";
 import { PIXEL_ICONS } from "./pixelIcons";
 import { useCharReveal } from "../hooks/useCharReveal";
+import { usePageTransition } from "./TransitionContext";
 
 // TODO: replace with real profile URLs.
 const LINKEDIN_URL = "https://www.linkedin.com/in/sarangsuman";
@@ -73,6 +74,7 @@ const SUB_ROW_GAP = 1;
 export default function HomeMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const transitionRef = usePageTransition();
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
@@ -128,12 +130,19 @@ export default function HomeMenu() {
       if (node.kind !== "submenu") return;
       const item = node.items[entry.subIndex];
       if (item.external) {
-        window.open(item.href, "_blank", "noopener,noreferrer");
+        // External links open in a new tab, so there's no route change for
+        // PageTransition to react to — run the same curtain+wave sequence
+        // by hand so the menu is fully covered (not just the wave's sparse
+        // text) before we hand off, then it lifts back since the user is
+        // left on this tab.
+        transitionRef?.current?.runExternal(() => {
+          window.open(item.href, "_blank", "noopener,noreferrer");
+        });
       } else {
         navigate(item.href);
       }
     },
-    [navigate],
+    [navigate, transitionRef],
   );
 
   useEffect(() => {

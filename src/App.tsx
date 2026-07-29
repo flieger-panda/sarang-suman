@@ -3,6 +3,10 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import PageTransition from "./components/PageTransition";
 import HomeMenu from "./components/HomeMenu";
 import { RevealProvider } from "./components/RevealContext";
+import {
+  TransitionProvider,
+  type PageTransitionHandle,
+} from "./components/TransitionContext";
 import Skills from "./pages/Skills";
 import Portfolio from "./pages/Portfolio";
 import PortfolioProject from "./pages/PortfolioProject";
@@ -20,6 +24,7 @@ function Home() {
 function App() {
   const location = useLocation();
   const [revealed, setRevealed] = useState(false);
+  const transitionRef = useRef<PageTransitionHandle>(null);
 
   // Reset synchronously on every route change, before any descendant
   // (PageTransition, the routed page) renders with the new location —
@@ -40,15 +45,17 @@ function App() {
 
   return (
     <RevealProvider value={revealContextValue}>
-      <PageTransition />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/skills" element={<Skills />} />
-        <Route path="/portfolio" element={<Portfolio />} />
-        <Route path="/portfolio/:slug" element={<PortfolioProject />} />
-        <Route path="/about-me" element={<AboutMe />} />
-        <Route path="/music" element={<Music />} />
-      </Routes>
+      <TransitionProvider value={transitionRef}>
+        <PageTransition ref={transitionRef} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/skills" element={<Skills />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/portfolio/:slug" element={<PortfolioProject />} />
+          <Route path="/about-me" element={<AboutMe />} />
+          <Route path="/music" element={<Music />} />
+        </Routes>
+      </TransitionProvider>
     </RevealProvider>
   );
 }
