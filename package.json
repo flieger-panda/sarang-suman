@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/plus-jakarta-sans": "^5.3.0",
     "@fontsource/space-mono": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
     "animejs": "^4.5.0",
@@ -18,6 +19,7 @@
     "react-dom": "^19.2.7",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.18.1",
+    "rehype-raw": "^7.0.0",
     "remark-breaks": "^4.0.0",
     "tailwindcss": "^4.3.3"
   },
