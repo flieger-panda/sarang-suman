@@ -1,3 +1,6 @@
+---
+date: 2025-05
+---
 # EKF-Based Sensor Fusion for UAV Flight Control
 
 **Georgia Tech Propulsive Landers**, Avionics & GNC

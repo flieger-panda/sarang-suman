@@ -1,4 +1,7 @@
-# Real-Time BLE Presence Detection System
+---
+date: present
+---
+# Refresh Health: IoT Platform for Healthcare Cloud Software
 
 **Refresh Health**, Software Engineering Intern
 June 2026 – Present | Atlanta, GA

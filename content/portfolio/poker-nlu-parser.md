@@ -1,6 +1,9 @@
-# Poker Variant NLU Parser
+---
+date: present
+---
+# NLU Parser for Poker Variants
 
-**Personal Project (Ongoing)**
+**Personal Project (WIP)**
 
 **Stack:** Python, Transformers / ML
 

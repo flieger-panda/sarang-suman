@@ -1,4 +1,7 @@
-# Nila, IoT & Facility Management Platform
+---
+date: 2025-12
+---
+# IoT Facility Management Platform
 
 **Startup Project**
 Oct. 2025 – Dec. 2025

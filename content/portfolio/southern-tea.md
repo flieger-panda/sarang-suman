@@ -1,4 +1,7 @@
-# ERP Data Integrity Investigation
+---
+date: 2024-01
+---
+# ERP Data Integrity Investigation & Manufacturing Pipeline Audit 
 
 **Southern Tea**, Intern
 May 2023 – Jan. 2024 | Marietta, GA

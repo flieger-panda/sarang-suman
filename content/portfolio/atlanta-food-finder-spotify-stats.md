@@ -1,6 +1,9 @@
+---
+date: 2024-10
+---
 # Atlanta Food Finder & Spotify Stats
 
-**Personal Projects**
+**Course Project**
 Aug. 2024 – Oct. 2024
 
 **Stack:** Python, Django REST Framework, Next.js, Tailwind CSS, Google Places API, Spotify API, Gemini API
