@@ -1,17 +1,9 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { animate, stagger } from "animejs";
 import { LINE_COUNT, CENTER_ROW_INDEX, NAME } from "./waveHeroLayout";
 import PixelIcon, { type PixelBitmap } from "./PixelIcon";
 import { PIXEL_ICONS } from "./pixelIcons";
-import { useRevealed } from "./RevealContext";
+import { useCharReveal } from "../hooks/useCharReveal";
 
 // TODO: replace with real profile URLs.
 const LINKEDIN_URL = "https://www.linkedin.com/in/sarangsuman";
@@ -81,7 +73,6 @@ const SUB_ROW_GAP = 1;
 export default function HomeMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const revealed = useRevealed();
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
@@ -112,26 +103,7 @@ export default function HomeMenu() {
     });
   }, [flat]);
 
-  // Waits for PageTransition's curtain to actually finish fading (see
-  // revealSignal) instead of guessing a fixed delay, so the menu text
-  // never starts appearing while the wave still covers the screen.
-  // useLayoutEffect so the opacity-0 starting state is set before the
-  // browser's first paint, avoiding a flash of fully visible menu text.
-  useLayoutEffect(() => {
-    const menu = menuRef.current;
-    if (!menu || !revealed) return;
-
-    const chars = menu.querySelectorAll("[data-char]");
-    const reveal = animate(chars, {
-      opacity: [0, 1],
-      delay: stagger(18),
-      duration: 1,
-    });
-
-    return () => {
-      reveal.revert();
-    };
-  }, [revealed]);
+  useCharReveal(menuRef);
 
   const activate = useCallback(
     (entry: FlatEntry) => {

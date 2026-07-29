@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { portfolioProjects } from "../lib/content";
+import { useCharReveal } from "../hooks/useCharReveal";
+import { revealChars } from "../lib/revealChars";
 
 type Entry = { label: string; href: string };
 
@@ -45,7 +47,7 @@ function CursorLink({
             : ""
         }
       >
-        {entry.label}
+        {revealChars(entry.label)}
       </span>
     </Link>
   );
@@ -53,6 +55,8 @@ function CursorLink({
 
 export default function Portfolio() {
   const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null);
+  useCharReveal(containerRef);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
   useEffect(() => {
@@ -75,7 +79,7 @@ export default function Portfolio() {
   }, [selectedIndex, navigate]);
 
   return (
-    <div className="min-h-svh bg-black px-6 py-16">
+    <div ref={containerRef} className="min-h-svh bg-black px-6 py-16">
       <div className="mx-auto max-w-2xl">
         <div className="mb-8">
           <CursorLink
@@ -85,7 +89,7 @@ export default function Portfolio() {
           />
         </div>
         <h1 className="font-heading mb-8 text-2xl font-bold text-white">
-          portfolio
+          {revealChars("portfolio")}
         </h1>
         <ul className="space-y-3">
           {portfolioProjects.map((project, i) => {
