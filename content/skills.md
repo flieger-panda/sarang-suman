@@ -33,7 +33,7 @@
 <li>ESP32</li>
 <li>ESPresense</li>
 <li>BLE (Bluetooth Low Energy)</li>
-<li>MQTT (Mosquitto)</li>
+<li>MQTT</li>
 </ul>
 
 ## Infrastructure & Tools

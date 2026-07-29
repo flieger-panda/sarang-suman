@@ -107,6 +107,14 @@ export default function MarkdownContent({
   const headingTitlesRef = useRef(headingTitles);
   headingTitlesRef.current = headingTitles;
 
+  // Arrow-key navigation scrolls the page but the cursor doesn't move with
+  // it, so it can end up hovering a different heading than the one just
+  // selected — whose onMouseEnter would then steal the selection right
+  // back. This flag mutes hover between a keyboard move and the next real
+  // mouse movement, so only one input method "owns" selectedHeading at a
+  // time.
+  const ignoreHoverRef = useRef(false);
+
   useEffect(() => {
     if (!navigableHeadings) return;
 
@@ -123,6 +131,7 @@ export default function MarkdownContent({
           headingTitlesRef.current.length - 1,
         ),
       );
+      ignoreHoverRef.current = true;
       headingRefs.current[next]?.scrollIntoView({
         behavior: "smooth",
         block: "center",
@@ -140,8 +149,20 @@ export default function MarkdownContent({
       }
     };
 
+    // Real pointer movement hands control back to hover. Listening for
+    // mousemove rather than mouseenter matters here: the scroll triggered
+    // by a keyboard move can fire mouseenter on whatever heading ends up
+    // under the (stationary) cursor without the mouse itself having moved.
+    const handleMouseMove = () => {
+      ignoreHoverRef.current = false;
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
   }, [navigableHeadings]);
 
   const navigableHeadingComponent = useRef<ElementType | null>(null);
@@ -169,7 +190,10 @@ export default function MarkdownContent({
             .join(" ")}
           onMouseEnter={
             navigableHeadingsRef.current
-              ? () => setSelectedHeading(index)
+              ? () => {
+                  if (ignoreHoverRef.current) return;
+                  setSelectedHeading(index);
+                }
               : undefined
           }
           {...rest}
