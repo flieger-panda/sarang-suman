@@ -30,10 +30,12 @@ I have a dog, [security question answer], who absolutely adores me whenever I ha
 
 <br>
 
-<p>At an impresionable age, I (correctly) decided that Lionel Messi and LeBron James are the GOATs, so I currently support the 76ers (don't love that I have to), and FC Barcelona. I also recently started watching F1 and unfortunately fell into the trap of being a Ferrari fan. It's pretty miserable.</p>
+<p>At an impresionable age, I (correctly) decided that Lionel Messi and LeBron James are the GOATs, so I currently support the 76ers (don't love that I have to), and FC Barcelona.</p>
 
-![LeKing](/about/lebron.jpeg)
+<img src="/about/lebron.jpeg" alt="LeKing" class="w-140 mx-auto" />
+<p>I also recently started watching F1 and unfortunately fell into the trap of being a Ferrari fan. It's pretty miserable.</p>
 
+<img src="/about/scuderia.jpg" alt="Pit wall of clowns" class="mx-auto" />
 <br>
 
 <details>
