@@ -8,7 +8,7 @@ date: 2023-08
 **Participant**
 July 2023 – Aug. 2023
 
-**Stack:** TensorFlow, Scikit-Learn
+**Stack:** TensorFlow, Scikit-Learn, numpy
 
 ## What I Did
 

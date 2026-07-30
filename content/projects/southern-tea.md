@@ -14,4 +14,4 @@ I investigated and resolved a $300,000 valuation discrepancy in the company's ER
 
 I also observed a third-party audit team evaluating potential automation and technology upgrades for the company, then compiled my findings into a report for the Head of Engineering, documenting the audit process and offering an independent perspective alongside the auditors' own recommendations.
 
-The project was a hands-on introduction to debugging complex business systems: reasoning through unfamiliar enterprise software and tracing a technical error back to its direct financial impact.
+The project was a hands-on introduction to debugging complex business systems: reasoning through unfamiliar enterprise software and tracing a technical error back to its direct financial impact. I also gained insight into the role software plays in the manufacturing industry, and how to address manufacturing bottlenecks through automation and software solutions.
