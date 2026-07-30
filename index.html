@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- iOS ignores SVG favicons for "Add to Home Screen" and would fall back
+         to a page screenshot, so this ships a raster copy. Deliberately a
+         full-bleed square: iOS applies its own rounded mask, and a
+         pre-rounded source would double-round into black corner wedges. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#000000" />
 
