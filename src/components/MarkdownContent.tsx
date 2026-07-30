@@ -84,6 +84,7 @@ export default function MarkdownContent({
   navigableHeadings = false,
   backHref,
   backLabel = "< back",
+  headingLinks,
 }: {
   children: string;
   // Lets a page opt into arrow-key navigation over its h2 sections: a
@@ -104,6 +105,12 @@ export default function MarkdownContent({
   // gets consistent '>' styling regardless.
   backHref?: string;
   backLabel?: string;
+  // Maps an h2's exact text to a URL: pressing Enter while that heading
+  // is selected opens it (new tab), on top of the default scroll-into-view.
+  // For sections that are themselves just a link out (e.g. Music's "my
+  // spotify"), so keyboard activation does what Enter on a link elsewhere
+  // on the site would do.
+  headingLinks?: Record<string, string>;
 }) {
   const navigate = useNavigate();
   const headingTitles = useMemo(() => extractH2Titles(children), [children]);
@@ -134,7 +141,12 @@ export default function MarkdownContent({
       });
     },
     onActivate: (index) => {
-      if (backHref && index === 0) navigate(backHref);
+      if (backHref && index === 0) {
+        navigate(backHref);
+        return;
+      }
+      const href = headingLinks?.[headingTitles[index - headingOffset]];
+      if (href) window.open(href, "_blank", "noopener,noreferrer");
     },
   });
 

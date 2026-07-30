@@ -15,6 +15,12 @@ const skillsModules = import.meta.glob("../../content/skills.md", {
   eager: true,
 }) as Record<string, string>;
 
+const musicModules = import.meta.glob("../../content/music.md", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+
 const projectModules = import.meta.glob("../../content/projects/*.md", {
   query: "?raw",
   import: "default",
@@ -24,6 +30,8 @@ const projectModules = import.meta.glob("../../content/projects/*.md", {
 export const aboutMeContent = Object.values(aboutModules)[0] ?? "";
 
 export const skillsContent = Object.values(skillsModules)[0] ?? "";
+
+export const musicContent = Object.values(musicModules)[0] ?? "";
 
 function titleFromMarkdown(markdown: string, fallback: string): string {
   const heading = markdown.match(/^#\s+(.+)$/m);
