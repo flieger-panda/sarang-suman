@@ -1,5 +1,10 @@
 ---
 date: 2023-08
+description: An intensive applied ML program at NYU Tandon: random forests through
+  CNNs and YOLOv3 detection, finishing at 95% test accuracy, top of a 50+ student
+  cohort.
+keywords: TensorFlow, Scikit-Learn, numpy, machine learning, deep learning, CNNs,
+  YOLOv3, object detection, random forests, hyperparameter tuning
 ---
 # NYU Tandon Machine Learning Program
 

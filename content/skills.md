@@ -1,5 +1,7 @@
 # Skills & Technologies
 
+The languages, frameworks, and tools I work with as a software developer — full-stack web, Python data/ML, and IoT.
+
 ## Languages
 <ul>
 <li>Python</li>

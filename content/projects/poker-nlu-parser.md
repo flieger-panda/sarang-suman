@@ -1,5 +1,10 @@
 ---
 date: present
+description: A work-in-progress NLU system turning free-text poker variant
+  descriptions into structured config schemas via a multi-head transformer
+  classifier.
+keywords: Python, Transformers, NLU, natural language understanding, multi-head
+  classifier, transformers, machine learning, schema design
 ---
 # NLU Parser for Poker Variants
 

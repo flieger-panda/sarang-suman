@@ -1,5 +1,10 @@
 ---
 date: 2024-05
+description: An offline-first education initiative I founded: Linux devices running
+  Kolibri with bundled curriculum, deployed to 40+ laptops in Metro Atlanta and
+  rural India.
+keywords: Linux, Bash, system administration, scripting, automation, provisioning,
+  offline-first, Kolibri, edtech
 ---
 # Project OysterPod
 

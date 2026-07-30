@@ -1,5 +1,10 @@
 ---
 date: 2024-10
+description: Two full-stack web apps from a five-person team I led as Scrum Master:
+  a Django REST and Next.js restaurant finder for Atlanta, and a Spotify
+  listening-stats app.
+keywords: Python, Django REST Framework, Next.js, Tailwind CSS, Google Places API,
+  Spotify API, Gemini API, full-stack web development, Scrum Master, REST APIs
 ---
 # Atlanta Food Finder & Spotify Stats
 

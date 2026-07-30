@@ -1,5 +1,10 @@
 ---
 date: present
+description: Real-time BLE presence detection built from scratch for a health-tech
+  startup: ESP32/ESPresense sensors over MQTT into FastAPI and PostgreSQL, wired
+  into the EHR.
+keywords: ESP32, ESPresense, MQTT, Mosquitto, FastAPI, PostgreSQL, React, Tailscale,
+  IoT, BLE, presence detection, healthcare software, software engineering intern
 ---
 # Refresh Health: IoT Platform for Healthcare Cloud Software
 
