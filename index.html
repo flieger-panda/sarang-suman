@@ -30,6 +30,34 @@
     <meta name="twitter:title" content="sarang suman" />
     <meta name="twitter:description" content="software dev &amp; cs student @ GT" />
     <meta name="twitter:image" content="https://sarangsuman.me/og.png" />
+
+    <!-- Google tag (gtag.js). This is the only HTML entry point — the build
+         copies it to 404.html for Pages' SPA fallback — so it covers every
+         route. Client-side navigations (BrowserRouter pushState) are counted
+         by GA4's enhanced measurement "page changes based on browser history
+         events", which is on by default; don't also send page_view manually
+         unless that setting is turned off, or every route change is
+         double-counted. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-11XJ7LYJ2N"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // Only report from the live site: `npm run dev` and `npm run preview`
+      // both serve on localhost, and without this gate they'd send real hits
+      // into the property. gtag.js still loads locally, but with no config it
+      // sends nothing and sets no cookie — so if you're checking Realtime and
+      // seeing zero traffic from your own machine, that's this, not a broken
+      // tag. Exact hostnames rather than a suffix match, so a lookalike
+      // domain can't report into this property.
+      if (
+        location.hostname === 'sarangsuman.me' ||
+        location.hostname === 'www.sarangsuman.me'
+      ) {
+        gtag('config', 'G-11XJ7LYJ2N');
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
