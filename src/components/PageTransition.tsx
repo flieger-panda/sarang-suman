@@ -1,4 +1,10 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useLocation } from "react-router-dom";
 import WaveHero, { type WaveHeroHandle } from "./WaveHero";
 import { useSetRevealed } from "./RevealContext";
@@ -28,7 +34,15 @@ const PageTransition = forwardRef<PageTransitionHandle>(
     // the second mount, while the first mount's cleanup still marks the
     // one real in-flight sequence as cancelled, so it would surge and then
     // never recede).
-    useEffect(() => {
+    //
+    // useLayoutEffect, not useEffect: the new route is already mounted
+    // underneath by the time this runs, but a plain useEffect fires after
+    // the browser paints — so anything in the new route not already
+    // hidden (e.g. an <img>, which isn't gated behind the opacity-0
+    // char-reveal the way text is) would flash visible for one frame
+    // before the curtain caught up. Setting opacity here synchronously,
+    // pre-paint, closes that gap.
+    useLayoutEffect(() => {
       let cancelled = false;
       (async () => {
         // Cover instantly — the new route is already mounted underneath by
