@@ -42,7 +42,7 @@
 <li>Tailscale (tailnet setup)</li>
 <li>Claude Code</li>
 <li>Linux system administration</li>
-<li>macOS/Homebrew environment setup and troubleshooting</li>
+<li>AWS Fargate</li>
 </ul>
 
 ## Machine Learning & Data
