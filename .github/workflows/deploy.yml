@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           # Single source of truth: .nvmrc drives CI and local nvm alike, so
           # the two can't drift. pdfjs-dist requires Node >=22.13.
