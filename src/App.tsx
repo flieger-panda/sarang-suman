@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import PageTransition from "./components/PageTransition";
 import HomeMenu from "./components/HomeMenu";
@@ -12,6 +12,12 @@ import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import AboutMe from "./pages/AboutMe";
 import Music from "./pages/Music";
+
+// Lazy specifically because of pdf.js: bundled eagerly it roughly doubles
+// the main chunk, and every page but this one loads it for nothing. The
+// page transition's curtain is already covering the screen while the chunk
+// arrives, so a null Suspense fallback is invisible rather than a flash.
+const Resume = lazy(() => import("./pages/Resume"));
 
 function Home() {
   return (
@@ -52,6 +58,14 @@ function App() {
           <Route path="/skills" element={<Skills />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:slug" element={<ProjectDetail />} />
+          <Route
+            path="/resume"
+            element={
+              <Suspense fallback={null}>
+                <Resume />
+              </Suspense>
+            }
+          />
           <Route path="/about-me" element={<AboutMe />} />
           <Route path="/music" element={<Music />} />
         </Routes>

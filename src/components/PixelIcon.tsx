@@ -9,12 +9,16 @@ type Props = {
 
 // Renders a hand-drawn 8-bit style icon from a plain character grid, with
 // crisp (non-antialiased) edges, colored via currentColor so it matches
-// surrounding text.
+// surrounding text. The grid need not be square — the viewBox takes its
+// width from the row length and its height from the row count, so a wider
+// -than-tall icon (the download arrow) letterboxes inside whatever box the
+// className gives it rather than stretching to fill it.
 export default function PixelIcon({ bitmap, className }: Props) {
-  const size = bitmap.length;
+  const height = bitmap.length;
+  const width = bitmap[0]?.length ?? 0;
   return (
     <svg
-      viewBox={`0 0 ${size} ${size}`}
+      viewBox={`0 0 ${width} ${height}`}
       className={className}
       fill="currentColor"
       shapeRendering="crispEdges"

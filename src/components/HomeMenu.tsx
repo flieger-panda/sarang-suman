@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LINE_COUNT, CENTER_ROW_INDEX, NAME } from "./waveHeroLayout";
 import PixelIcon, { type PixelBitmap } from "./PixelIcon";
 import { PIXEL_ICONS } from "./pixelIcons";
 import { useCharReveal } from "../hooks/useCharReveal";
+import { useArrowKeyList } from "../hooks/useArrowKeyList";
 import { usePageTransition } from "./TransitionContext";
 
 // TODO: replace with real profile URLs.
@@ -29,6 +30,7 @@ const MENU: MenuNode[] = [
     items: [
       { label: "skills", href: "/skills" },
       { label: "projects", href: "/projects" },
+      { label: "resume", href: "/resume" },
     ],
   },
   {
@@ -75,7 +77,6 @@ export default function HomeMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const transitionRef = usePageTransition();
-  const [selectedIndex, setSelectedIndex] = useState(-1);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
   const flat = useMemo<FlatEntry[]>(() => {
@@ -145,24 +146,13 @@ export default function HomeMenu() {
     [navigate, transitionRef],
   );
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedIndex((i) => Math.min(i + 1, flat.length - 1));
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIndex((i) => Math.max(i - 1, -1));
-      } else if (e.key === "Enter") {
-        if (selectedIndex === -1) return;
-        e.preventDefault();
-        activate(flat[selectedIndex]);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [flat, selectedIndex, activate]);
+  const { selectedIndex, setSelectedIndex, hoverSelect } = useArrowKeyList({
+    length: flat.length,
+    onActivate: (index) => activate(flat[index]),
+    // Land on the first entry ("about me") rather than nothing, so there's
+    // always a visible cursor on load — see website_design.md.
+    initialIndex: 0,
+  });
 
   return (
     <div
@@ -217,7 +207,7 @@ export default function HomeMenu() {
               <div
                 key={entryKey}
                 className="relative pointer-events-auto cursor-pointer whitespace-pre"
-                onMouseEnter={() => setSelectedIndex(flatIndex)}
+                onMouseEnter={() => hoverSelect(flatIndex)}
                 onClick={() => {
                   setSelectedIndex(flatIndex);
                   activate(entry);
@@ -267,7 +257,7 @@ export default function HomeMenu() {
             <div
               key={entryKey}
               className="relative pointer-events-auto cursor-pointer whitespace-pre text-sm"
-              onMouseEnter={() => setSelectedIndex(flatIndex)}
+              onMouseEnter={() => hoverSelect(flatIndex)}
               onClick={() => {
                 setSelectedIndex(flatIndex);
                 activate(entry);
