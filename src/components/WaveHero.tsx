@@ -4,6 +4,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  type CSSProperties,
 } from "react";
 import { animate, stagger } from "animejs";
 import { LINE_COUNT, CHARS_PER_LINE, CENTER_ROW_INDEX } from "./waveHeroLayout";
@@ -37,6 +38,27 @@ const ROW_CHARS = Array.from({ length: LINE_COUNT }, (_, row) =>
     }
     return ">";
   }),
+);
+
+// Each row as a quoted CSS <string>, fed to a `::before` via a custom
+// property instead of being rendered as a text node.
+//
+// This is deliberate and load-bearing for SEO, not a style preference. The
+// wave is decorative texture, but as text nodes it was *the* content of
+// every page as far as a crawler was concerned: LINE_COUNT * CHARS_PER_LINE
+// is 2,560 glyphs on every route (WaveHero never unmounts — see the note in
+// SideWave), against 7 real words on the home page. Measured across routes,
+// 80-98% of the extracted text of this site was wave glyphs, sitting ahead
+// of the real content in DOM order. Text in CSS generated content isn't
+// indexed as page text, so this keeps the visual identical while leaving
+// only real copy for crawlers and screen readers. JSON.stringify is what
+// makes it a valid CSS string literal (quoted, with any quotes escaped).
+//
+// Two deliberate side effects: the wave is no longer selectable when you
+// drag across the page (it's texture, so this is an improvement), and it
+// disappears entirely with CSS disabled (also correct — it's decoration).
+const ROW_CSS_STRINGS = ROW_CHARS.map((chars) =>
+  JSON.stringify(chars.join(" ")),
 );
 
 // How far the idle drift reaches (see waveMotion): a small peek at the
@@ -125,17 +147,25 @@ const WaveHero = forwardRef<WaveHeroHandle>(function WaveHero(_props, ref) {
   }), [rows]);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-40 flex h-svh flex-col items-center justify-center overflow-hidden">
-      {ROW_CHARS.map((chars, i) => (
+    // aria-hidden to match SideWave: this is decoration, and without it a
+    // screen reader reads out thousands of `>` glyphs before any real content.
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 z-40 flex h-svh flex-col items-center justify-center overflow-hidden"
+    >
+      {ROW_CSS_STRINGS.map((row, i) => (
         <div
           key={i}
           ref={(el) => {
             lineRefs.current[i] = el;
           }}
-          className="whitespace-pre font-mono text-lg text-white"
-        >
-          {chars.join(" ")}
-        </div>
+          // The glyphs live in `::before` (see ROW_CSS_STRINGS). The row
+          // element itself still owns the layout box and the transform the
+          // animation loop drives, so the motion code above is unaffected;
+          // `whitespace-pre` is inherited by the pseudo-element.
+          style={{ "--wave-row": row } as CSSProperties}
+          className="whitespace-pre font-mono text-lg text-white before:content-[var(--wave-row)]"
+        />
       ))}
     </div>
   );

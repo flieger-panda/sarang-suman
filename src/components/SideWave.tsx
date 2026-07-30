@@ -1,4 +1,9 @@
-import { useLayoutEffect, useMemo, useRef } from "react";
+import {
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  type CSSProperties,
+} from "react";
 import { createWaveRows, idleFraction } from "./waveMotion";
 
 // The near layer of the site's two-layer ambient wave (see "Ambient wave
@@ -22,13 +27,19 @@ const NOISE_CHARS = ["_", "."];
 const NOISE_CHANCE = 0.18;
 
 // Fixed at module load (not per mount) so the texture stays put for the
-// lifetime of the app rather than reshuffling on every visit.
-const ROW_CHARS = Array.from({ length: ROW_COUNT }, () =>
-  Array.from({ length: CHARS_PER_ROW }, () =>
-    Math.random() < NOISE_CHANCE
-      ? NOISE_CHARS[Math.floor(Math.random() * NOISE_CHARS.length)]
-      : ">",
-  ).join(" "),
+// lifetime of the app rather than reshuffling on every visit. Stored as
+// quoted CSS <string>s and rendered through `::before` rather than as text
+// nodes, for the same reason as WaveHero's ROW_CSS_STRINGS (see the long
+// note there): as text, this gutter contributed ~1,344 junk glyphs to the
+// crawlable text of every content page.
+const ROW_CSS_STRINGS = Array.from({ length: ROW_COUNT }, () =>
+  JSON.stringify(
+    Array.from({ length: CHARS_PER_ROW }, () =>
+      Math.random() < NOISE_CHANCE
+        ? NOISE_CHARS[Math.floor(Math.random() * NOISE_CHARS.length)]
+        : ">",
+    ).join(" "),
+  ),
 );
 
 export default function SideWave({ className = "" }: { className?: string }) {
@@ -73,7 +84,7 @@ export default function SideWave({ className = "" }: { className?: string }) {
         className
       }
     >
-      {ROW_CHARS.map((chars, i) => (
+      {ROW_CSS_STRINGS.map((row, i) => (
         <div
           key={i}
           ref={(el) => {
@@ -81,11 +92,12 @@ export default function SideWave({ className = "" }: { className?: string }) {
           }}
           // Each row is its own clipping window: translating it left leaves
           // empty space at its right edge, and the varying width of that
-          // gap row-to-row is what draws the wave front.
-          className="w-full overflow-hidden whitespace-pre"
-        >
-          {chars}
-        </div>
+          // gap row-to-row is what draws the wave front. The glyphs come
+          // from `::before` (see ROW_CSS_STRINGS); the row element keeps the
+          // box, the clipping, and the animated transform.
+          style={{ "--wave-row": row } as CSSProperties}
+          className="w-full overflow-hidden whitespace-pre before:content-[var(--wave-row)]"
+        />
       ))}
     </div>
   );

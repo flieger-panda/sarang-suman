@@ -287,7 +287,9 @@ export default function Resume() {
           would just sit behind the viewer. */}
       <SideWave className="hidden md:flex md:w-40 lg:w-64" />
 
-      <div className="relative z-10 mx-auto max-w-4xl px-6 py-16">
+      {/* <main> landmark: the page's content column. `main` and `div`
+          are both display:block, so this is a pure tag swap. */}
+      <main className="relative z-10 mx-auto max-w-4xl px-6 py-16">
         <Link
           to="/"
           className="relative mb-8 inline-block font-mono text-white"
@@ -406,7 +408,7 @@ export default function Resume() {
             )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
