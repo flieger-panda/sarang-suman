@@ -47,6 +47,7 @@
 
 ## Machine Learning & Data
 <ul>
+<li>Jupyter Notebooks</li>
 <li>TensorFlow</li>
 <li>Scikit-Learn</li>
 <li>Transformers</li>

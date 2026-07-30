@@ -1,18 +1,19 @@
 # about me
 
+## what i do
+
 I'm a 3rd year Computer Science Student at Georgia Tech specializing in the Intelligence and People threads. 
-As an Indian male in CS at Georgia Tech I consider myself a very rare breed 😇.
+I do work in full-stack software development, data analysis/ML in Python, and web development.
 
-I became interested in CS because I love immersing myself in projects and building things that I can see working in real-time. 
-My experience is mainly in full-stack development, and data analysis/ML in Python. I've found that I work best under pressure, and need to understand the "why" behind my work in order to do my best.
+I became interested in software engineering and development because I love immersing myself in building something that I can see working in real-time.
 
-![Me, Sarang](../assets/sarang.jpg)
+![Me, Sarang](/about/sarang.jpg)
 
-I have a dog Meru, who absolutely adores me whenever I have food to give her. Otherwise, she fondly tolerates my presence.
+I have a dog, [security question answer], who absolutely adores me whenever I have food to give her. Otherwise, she fondly tolerates my presence.
 
-![My dog Meru](../assets/meru.jpg)
+![My dog Meru](/about/meru.jpg)
 
-### sportsball
+## sportsball
 
 <details>
 <summary><strong>The teams I support</strong></summary>
@@ -29,13 +30,9 @@ I have a dog Meru, who absolutely adores me whenever I have food to give her. Ot
 
 <br>
 
-<p>At an impresionable age, I (correctly) decided that Lionel Messi and LeBron James are the GOATs, so I currently support the 76ers (don't love that I have to), and FC Barcelona.</p>
+<p>At an impresionable age, I (correctly) decided that Lionel Messi and LeBron James are the GOATs, so I currently support the 76ers (don't love that I have to), and FC Barcelona. I also recently started watching F1 and unfortunately fell into the trap of being a Ferrari fan. It's pretty miserable.</p>
 
-![LeKing](../assets/lebron.jpeg)
-
-<p>I was born and raised in the Metro Atlanta Area and I enjoyed watching the Falcons play until 28-3 happened. 
-Recently, I've renewed my interest in the NFL, but I'm not having as fun of a time as I used to watching the Falcons.
-I also recently started watching F1 and unfortunately fell into the trap of being a Ferrari fan. It's pretty miserable.</p>
+![LeKing](/about/lebron.jpeg)
 
 <br>
 

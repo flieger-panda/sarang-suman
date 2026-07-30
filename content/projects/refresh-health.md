@@ -3,10 +3,14 @@ date: present
 ---
 # Refresh Health: IoT Platform for Healthcare Cloud Software
 
+## Overview
+
 **Refresh Health**, Software Engineering Intern
 June 2026 – Present | Atlanta, GA
 
 **Stack:** ESP32, ESPresense, MQTT (Mosquitto), FastAPI, PostgreSQL, React, Tailscale
+
+## What I Did
 
 I architected and built a real-time presence detection system from the ground up for this early-stage health-tech startup, designed to track device presence across a distributed sensor network with sub-500ms detection latency.
 

@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import SideWave from "../components/SideWave";
 import { projects } from "../lib/content";
 import { useCharReveal } from "../hooks/useCharReveal";
+import { useArrowKeyList } from "../hooks/useArrowKeyList";
 import { revealChars } from "../lib/revealChars";
 
 type Entry = { label: string; href: string };
@@ -57,35 +59,23 @@ export default function Projects() {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   useCharReveal(containerRef);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedIndex((i) => Math.min(i + 1, ENTRIES.length - 1));
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIndex((i) => Math.max(i - 1, -1));
-      } else if (e.key === "Enter") {
-        if (selectedIndex === -1) return;
-        e.preventDefault();
-        navigate(ENTRIES[selectedIndex].href);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex, navigate]);
+  const { selectedIndex, hoverSelect } = useArrowKeyList({
+    length: ENTRIES.length,
+    onActivate: (index) => navigate(ENTRIES[index].href),
+    // Land on the most recent project (index 1, right after back) rather
+    // than nothing — see website_design.md.
+    initialIndex: Math.min(1, ENTRIES.length - 1),
+  });
 
   return (
-    <div ref={containerRef} className="min-h-svh bg-black px-6 py-16">
-      <div className="mx-auto max-w-2xl">
+    <div ref={containerRef} className="relative min-h-svh bg-black">
+      <SideWave className="hidden md:flex md:w-40 lg:w-64" />
+      <div className="relative z-10 mx-auto max-w-2xl px-6 py-16">
         <div className="mb-8">
           <CursorLink
             entry={BACK_ENTRY}
             isSelected={selectedIndex === 0}
-            onSelect={() => setSelectedIndex(0)}
+            onSelect={() => hoverSelect(0)}
           />
         </div>
         <h1 className="font-heading mb-8 text-2xl font-bold text-white">
@@ -99,7 +89,7 @@ export default function Projects() {
                 <CursorLink
                   entry={ENTRIES[index]}
                   isSelected={selectedIndex === index}
-                  onSelect={() => setSelectedIndex(index)}
+                  onSelect={() => hoverSelect(index)}
                 />
               </li>
             );

@@ -1,16 +1,16 @@
 import {
-  useEffect,
   useMemo,
   useRef,
-  useState,
   type ComponentPropsWithoutRef,
   type ElementType,
   type ReactNode,
 } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkBreaks from "remark-breaks";
 import { revealChars } from "../lib/revealChars";
+import { useArrowKeyList } from "../hooks/useArrowKeyList";
 
 const HEADING_CLASS = "font-heading font-bold text-white";
 
@@ -82,88 +82,74 @@ function flattenText(node: ReactNode): string {
 export default function MarkdownContent({
   children,
   navigableHeadings = false,
+  backHref,
+  backLabel = "< back",
 }: {
   children: string;
   // Lets a page opt into arrow-key navigation over its h2 sections: a
   // blinking `>` cursor (same look as CursorLink/HomeMenu) that moves
   // between headings and scrolls each into view, for pages like Skills
-  // that are effectively a list of sections rather than prose.
+  // that are effectively a list of sections rather than prose. The h1
+  // stays a plain, non-interactive page title regardless — only h2s are
+  // ever part of the cursor list.
   navigableHeadings?: boolean;
+  // Renders the page's "< back" link as part of the same cursor list
+  // instead of the page rendering its own plain <Link>, so it picks up
+  // the same '>' selector as everything else. Only wired into the
+  // arrow-key list when navigableHeadings is also set (ArrowUp out of the
+  // first heading reaches it) — with it unset, there's nothing else on
+  // the page to arrow-navigate between, and capturing ArrowUp/Down would
+  // just cost the browser's native page-scroll on those keys for no
+  // benefit. Hover selection still works either way, so the link still
+  // gets consistent '>' styling regardless.
+  backHref?: string;
+  backLabel?: string;
 }) {
+  const navigate = useNavigate();
   const headingTitles = useMemo(() => extractH2Titles(children), [children]);
   const headingRefs = useRef<HTMLHeadingElement[]>([]);
-  const [selectedHeading, setSelectedHeading] = useState(
-    navigableHeadings ? 0 : -1,
-  );
+
+  // When a back link is present it occupies index 0, pushing headings
+  // down by one — keeps "nothing selected" as the same -1 sentinel
+  // useArrowKeyList already uses everywhere else on the site.
+  const headingOffset = backHref ? 1 : 0;
+  const entryCount = headingTitles.length + headingOffset;
+
+  const { selectedIndex, hoverSelect } = useArrowKeyList({
+    length: entryCount,
+    enabled: navigableHeadings,
+    // Site convention: land on the first real entry (skipping both
+    // "nothing" and any leading back link) rather than starting
+    // unselected — see website_design.md. Clamped in case a page ever
+    // has nothing beyond "back" to select.
+    initialIndex: Math.min(headingOffset, entryCount - 1),
+    onMove: (index) => {
+      if (backHref && index === 0) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      headingRefs.current[index - headingOffset]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    },
+    onActivate: (index) => {
+      if (backHref && index === 0) navigate(backHref);
+    },
+  });
 
   // NavigableHeading is read live inside itself via these refs rather than
   // closing over props/state directly, so the component function below can
   // be created exactly once (see navigableHeadingComponent) and keep a
   // stable identity across re-renders while still reflecting current state.
-  const selectedHeadingRef = useRef(selectedHeading);
-  selectedHeadingRef.current = selectedHeading;
+  const selectedIndexRef = useRef(selectedIndex);
+  selectedIndexRef.current = selectedIndex;
   const navigableHeadingsRef = useRef(navigableHeadings);
   navigableHeadingsRef.current = navigableHeadings;
   const headingTitlesRef = useRef(headingTitles);
   headingTitlesRef.current = headingTitles;
-
-  // Arrow-key navigation scrolls the page but the cursor doesn't move with
-  // it, so it can end up hovering a different heading than the one just
-  // selected — whose onMouseEnter would then steal the selection right
-  // back. This flag mutes hover between a keyboard move and the next real
-  // mouse movement, so only one input method "owns" selectedHeading at a
-  // time.
-  const ignoreHoverRef = useRef(false);
-
-  useEffect(() => {
-    if (!navigableHeadings) return;
-
-    // Reads/updates via selectedHeadingRef rather than a setState updater
-    // function, since the updater form is invoked twice under StrictMode
-    // in dev to catch impurity — and scrollIntoView here is a side effect,
-    // so a double-invoked updater would scroll twice and (worse) let the
-    // second call race the first with a stale index.
-    const move = (delta: number) => {
-      const next = Math.max(
-        -1,
-        Math.min(
-          selectedHeadingRef.current + delta,
-          headingTitlesRef.current.length - 1,
-        ),
-      );
-      ignoreHoverRef.current = true;
-      headingRefs.current[next]?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-      setSelectedHeading(next);
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        move(1);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        move(-1);
-      }
-    };
-
-    // Real pointer movement hands control back to hover. Listening for
-    // mousemove rather than mouseenter matters here: the scroll triggered
-    // by a keyboard move can fire mouseenter on whatever heading ends up
-    // under the (stationary) cursor without the mouse itself having moved.
-    const handleMouseMove = () => {
-      ignoreHoverRef.current = false;
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, [navigableHeadings]);
+  const headingOffsetRef = useRef(headingOffset);
+  headingOffsetRef.current = headingOffset;
 
   const navigableHeadingComponent = useRef<ElementType | null>(null);
   if (!navigableHeadingComponent.current) {
@@ -177,23 +163,25 @@ export default function MarkdownContent({
       // catch impure renders), so a `ref.current++` counter advances twice
       // per heading and desyncs from the once-per-heading DOM commit —
       // this stays correct because it's a pure function of `children`.
-      const index = headingTitlesRef.current.indexOf(flattenText(children));
+      const headingPos = headingTitlesRef.current.indexOf(
+        flattenText(children),
+      );
+      const index = headingPos + headingOffsetRef.current;
       const isSelected =
-        navigableHeadingsRef.current && selectedHeadingRef.current === index;
+        navigableHeadingsRef.current &&
+        headingPos !== -1 &&
+        selectedIndexRef.current === index;
       return (
         <h2
           ref={(el) => {
-            if (el && index !== -1) headingRefs.current[index] = el;
+            if (el && headingPos !== -1) headingRefs.current[headingPos] = el;
           }}
           className={[HEADING_CLASS, "relative mt-6 mb-3 text-xl", className]
             .filter(Boolean)
             .join(" ")}
           onMouseEnter={
             navigableHeadingsRef.current
-              ? () => {
-                  if (ignoreHoverRef.current) return;
-                  setSelectedHeading(index);
-                }
+              ? () => hoverSelect(index)
               : undefined
           }
           {...rest}
@@ -216,25 +204,56 @@ export default function MarkdownContent({
     };
   }
 
+  const isBackSelected = Boolean(backHref) && selectedIndex === 0;
+
   return (
-    <div className="font-mono text-white [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_a]:underline [&_a]:decoration-dotted [&_a:hover]:text-white/70">
-      <ReactMarkdown
-        remarkPlugins={[remarkBreaks]}
-        remarkRehypeOptions={{ allowDangerousHtml: true }}
-        rehypePlugins={[rehypeRaw]}
-        components={{
-          h1: H1,
-          h2: navigableHeadingComponent.current,
-          h3: H3,
-          p: P,
-          li: Li,
-          strong: Strong,
-          em: Em,
-          a: A,
-        }}
-      >
-        {children}
-      </ReactMarkdown>
-    </div>
+    <>
+      {backHref && (
+        <Link
+          to={backHref}
+          className="relative mb-8 inline-block font-mono text-white"
+          onMouseEnter={() => hoverSelect(0)}
+        >
+          <span
+            className={
+              "absolute right-full mr-2 " +
+              (isBackSelected
+                ? "animate-blink [text-shadow:0_0_14px_rgba(255,255,255,1)]"
+                : "invisible")
+            }
+          >
+            &gt;
+          </span>
+          <span
+            className={
+              isBackSelected
+                ? "font-bold [text-shadow:0_0_14px_rgba(255,255,255,1)]"
+                : ""
+            }
+          >
+            {revealChars(backLabel)}
+          </span>
+        </Link>
+      )}
+      <div className="font-mono text-white [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_a]:underline [&_a]:decoration-dotted [&_a:hover]:text-white/70">
+        <ReactMarkdown
+          remarkPlugins={[remarkBreaks]}
+          remarkRehypeOptions={{ allowDangerousHtml: true }}
+          rehypePlugins={[rehypeRaw]}
+          components={{
+            h1: H1,
+            h2: navigableHeadingComponent.current,
+            h3: H3,
+            p: P,
+            li: Li,
+            strong: Strong,
+            em: Em,
+            a: A,
+          }}
+        >
+          {children}
+        </ReactMarkdown>
+      </div>
+    </>
   );
 }

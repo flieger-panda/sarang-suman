@@ -3,10 +3,14 @@ date: 2023-08
 ---
 # NYU Tandon Machine Learning Program
 
+## Overview
+
 **Participant**
 July 2023 – Aug. 2023
 
 **Stack:** TensorFlow, Scikit-Learn
+
+## What I Did
 
 I completed an intensive machine learning program through NYU Tandon, covering applied ML fundamentals from classical models through deep learning and computer vision.
 

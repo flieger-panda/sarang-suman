@@ -3,10 +3,14 @@ date: 2024-10
 ---
 # Atlanta Food Finder & Spotify Stats
 
+## Overview
+
 **Course Project**
 Aug. 2024 – Oct. 2024
 
 **Stack:** Python, Django REST Framework, Next.js, Tailwind CSS, Google Places API, Spotify API, Gemini API
+
+## What I Did
 
 I built two full-stack web applications back to back: a restaurant discovery tool for the Atlanta area and a Spotify listening statistics app, both sharing a common architecture of a Django REST backend paired with a Next.js and Tailwind CSS frontend.
 

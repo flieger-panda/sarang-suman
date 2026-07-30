@@ -3,10 +3,14 @@ date: 2024-05
 ---
 # Project OysterPod
 
+## Overview
+
 **Founder**
 May 2023 – May 2024
 
 **Stack:** Linux, Bash
+
+## What I Did
 
 I founded and led Project OysterPod, an initiative to provide offline-first access to educational software in areas without reliable internet connectivity.
 

@@ -1,9 +1,9 @@
 import { useRef } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import MarkdownContent from "../components/MarkdownContent";
+import SideWave from "../components/SideWave";
 import { getProject } from "../lib/content";
 import { useCharReveal } from "../hooks/useCharReveal";
-import { revealChars } from "../lib/revealChars";
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -16,15 +16,12 @@ export default function ProjectDetail() {
   }
 
   return (
-    <div ref={containerRef} className="min-h-svh bg-black px-6 py-16">
-      <div className="mx-auto max-w-4xl">
-        <Link
-          to="/projects"
-          className="mb-8 inline-block font-mono text-white hover:[text-shadow:0_0_14px_rgba(255,255,255,1)]"
-        >
-          {revealChars("< back")}
-        </Link>
-        <MarkdownContent>{project.content}</MarkdownContent>
+    <div ref={containerRef} className="relative min-h-svh bg-black">
+      <SideWave className="hidden md:flex md:w-40 lg:w-64" />
+      <div className="relative z-10 mx-auto max-w-4xl px-6 py-16">
+        <MarkdownContent navigableHeadings backHref="/projects">
+          {project.content}
+        </MarkdownContent>
       </div>
     </div>
   );

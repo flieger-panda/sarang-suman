@@ -3,8 +3,12 @@ date: 2024-01
 ---
 # ERP Data Integrity Investigation & Manufacturing Pipeline Audit 
 
+## Overview
+
 **Southern Tea**, Intern
 May 2023 – Jan. 2024 | Marietta, GA
+
+## What I Did
 
 I investigated and resolved a $300,000 valuation discrepancy in the company's ERP system. I traced dataflows and audited validation logic to identify a misconfiguration in the inventory-management workflow as the root cause, then corrected it and verified the fix restored data integrity across the affected financial systems.
 

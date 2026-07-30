@@ -3,10 +3,14 @@ date: 2025-05
 ---
 # EKF-Based Sensor Fusion for UAV Flight Control
 
+## Overview
+
 **Georgia Tech Propulsive Landers**, Avionics & GNC
 Aug. 2024 – May 2025 | Atlanta, GA
 
 **Stack:** C++, Python
+
+## What I Did
 
 I contributed to the Avionics and Guidance, Navigation & Control (GNC) subteam of Georgia Tech's Propulsive Landers project, focused on real-time state estimation for an autonomous UAV platform.
 

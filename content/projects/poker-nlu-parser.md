@@ -3,9 +3,13 @@ date: present
 ---
 # NLU Parser for Poker Variants
 
+## Overview
+
 **Personal Project (WIP)**
 
 **Stack:** Python, Transformers / ML
+
+## What I Did
 
 I'm building a natural language understanding (NLU) system that converts free-text descriptions of poker game variants into structured configuration schemas, with the goal of automating what is currently a manual configuration process.
 
