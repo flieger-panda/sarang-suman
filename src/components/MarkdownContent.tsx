@@ -11,6 +11,7 @@ import rehypeRaw from "rehype-raw";
 import remarkBreaks from "remark-breaks";
 import { revealChars } from "../lib/revealChars";
 import { useArrowKeyList } from "../hooks/useArrowKeyList";
+import { usePageTransition } from "./TransitionContext";
 
 const HEADING_CLASS = "font-heading font-bold text-white";
 
@@ -113,6 +114,7 @@ export default function MarkdownContent({
   headingLinks?: Record<string, string>;
 }) {
   const navigate = useNavigate();
+  const transitionRef = usePageTransition();
   const headingTitles = useMemo(() => extractH2Titles(children), [children]);
   const headingRefs = useRef<HTMLHeadingElement[]>([]);
 
@@ -146,7 +148,14 @@ export default function MarkdownContent({
         return;
       }
       const href = headingLinks?.[headingTitles[index - headingOffset]];
-      if (href) window.open(href, "_blank", "noopener,noreferrer");
+      if (href) {
+        // External link, no route change for PageTransition to react to —
+        // run the same curtain+wave sequence by hand, same as HomeMenu's
+        // external items, so the page is fully covered before we hand off.
+        transitionRef?.current?.runExternal(() => {
+          window.open(href, "_blank", "noopener,noreferrer");
+        });
+      }
     },
   });
 
