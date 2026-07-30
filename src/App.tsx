@@ -1,7 +1,8 @@
-import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useMemo, useRef, useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import PageTransition from "./components/PageTransition";
 import HomeMenu from "./components/HomeMenu";
+import MouseGlow from "./components/MouseGlow";
 import { RevealProvider } from "./components/RevealContext";
 import {
   TransitionProvider,
@@ -19,10 +20,10 @@ import Music from "./pages/Music";
 // arrives, so a null Suspense fallback is invisible rather than a flash.
 const Resume = lazy(() => import("./pages/Resume"));
 
-function Home() {
+function Home({ onToggleGlow }: { onToggleGlow: () => void }) {
   return (
     <div className="bg-black">
-      <HomeMenu />
+      <HomeMenu onToggleGlow={onToggleGlow} />
     </div>
   );
 }
@@ -31,6 +32,12 @@ function App() {
   const location = useLocation();
   const [revealed, setRevealed] = useState(false);
   const transitionRef = useRef<PageTransitionHandle>(null);
+
+  // Hidden toggle: Enter on the home page's name row (see HomeMenu). Lives
+  // up here rather than in HomeMenu so the glow keeps following the pointer
+  // across route changes once it's on.
+  const [glowEnabled, setGlowEnabled] = useState(false);
+  const toggleGlow = useCallback(() => setGlowEnabled((on) => !on), []);
 
   // Reset synchronously on every route change, before any descendant
   // (PageTransition, the routed page) renders with the new location —
@@ -52,9 +59,10 @@ function App() {
   return (
     <RevealProvider value={revealContextValue}>
       <TransitionProvider value={transitionRef}>
+        <MouseGlow enabled={glowEnabled} />
         <PageTransition ref={transitionRef} />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home onToggleGlow={toggleGlow} />} />
           <Route path="/skills" element={<Skills />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:slug" element={<ProjectDetail />} />

@@ -73,7 +73,11 @@ type FlatEntry =
 const TOP_ROW_GAP = 2;
 const SUB_ROW_GAP = 1;
 
-export default function HomeMenu() {
+export default function HomeMenu({
+  onToggleGlow,
+}: {
+  onToggleGlow: () => void;
+}) {
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const transitionRef = usePageTransition();
@@ -149,6 +153,11 @@ export default function HomeMenu() {
   const { selectedIndex, setSelectedIndex, hoverSelect } = useArrowKeyList({
     length: flat.length,
     onActivate: (index) => activate(flat[index]),
+    // Index -1 is where the cursor sits on the centered name row, so Enter
+    // there toggles the pointer glow. Deliberately keyboard-only: the name
+    // row stays unclickable (no pointer-events-auto), so a stray mouse
+    // click on the header can't flip it.
+    onActivateNone: onToggleGlow,
     // Land on the first entry ("about me") rather than nothing, so there's
     // always a visible cursor on load — see website_design.md.
     initialIndex: 0,
@@ -162,7 +171,10 @@ export default function HomeMenu() {
       {Array.from({ length: LINE_COUNT }, (_, row) => {
         if (row === CENTER_ROW_INDEX) {
           return (
-            <div key={row} className="relative whitespace-pre">
+            <div
+              key={row}
+              className="relative whitespace-pre text-2xl font-bold"
+            >
               <span
                 data-char
                 className="absolute right-full mr-2 inline-block opacity-0"
@@ -170,7 +182,7 @@ export default function HomeMenu() {
                 <span
                   className={
                     selectedIndex === -1
-                      ? "animate-blink [text-shadow:0_0_14px_rgba(255,255,255,1)]"
+                      ? "animate-blink [text-shadow:0_0_6px_rgba(255,255,255,1),0_0_18px_rgba(255,255,255,0.9),0_0_32px_rgba(255,255,255,0.6)]"
                       : "invisible"
                   }
                 >
@@ -220,7 +232,7 @@ export default function HomeMenu() {
                   <span
                     className={
                       isSelected
-                        ? "animate-blink [text-shadow:0_0_14px_rgba(255,255,255,1)]"
+                        ? "animate-blink [text-shadow:0_0_6px_rgba(255,255,255,1),0_0_18px_rgba(255,255,255,0.9),0_0_32px_rgba(255,255,255,0.6)]"
                         : "invisible"
                     }
                   >
@@ -267,7 +279,7 @@ export default function HomeMenu() {
                 className={
                   "absolute right-full mr-2 " +
                   (isSelected
-                    ? "animate-blink [text-shadow:0_0_14px_rgba(255,255,255,1)]"
+                    ? "animate-blink [text-shadow:0_0_6px_rgba(255,255,255,1),0_0_18px_rgba(255,255,255,0.9),0_0_32px_rgba(255,255,255,0.6)]"
                     : "invisible")
                 }
               >

@@ -21,6 +21,7 @@ export function useArrowKeyList({
   length,
   onMove,
   onActivate,
+  onActivateNone,
   enabled = true,
   initialIndex = -1,
 }: {
@@ -30,6 +31,11 @@ export function useArrowKeyList({
   onMove?: (index: number) => void;
   // Called on Enter, only when something is selected.
   onActivate?: (index: number) => void;
+  // Called on Enter while *nothing* in the list is selected (index -1).
+  // Most lists have nothing to activate there, so Enter stays inert unless
+  // a caller opts in — HomeMenu does, because its centered name row is
+  // what shows the cursor at -1.
+  onActivateNone?: () => void;
   // Set false to drop the arrow-key/Enter capture entirely (hover-driven
   // selection still works) — for pages where the selectable list is a
   // single item with nothing to arrow-navigate between, capturing
@@ -56,6 +62,8 @@ export function useArrowKeyList({
   onMoveRef.current = onMove;
   const onActivateRef = useRef(onActivate);
   onActivateRef.current = onActivate;
+  const onActivateNoneRef = useRef(onActivateNone);
+  onActivateNoneRef.current = onActivateNone;
   const enabledRef = useRef(enabled);
   enabledRef.current = enabled;
 
@@ -81,13 +89,18 @@ export function useArrowKeyList({
         e.preventDefault();
         move(-1);
       } else if (e.key === "Enter") {
-        if (selectedIndexRef.current === -1) return;
+        const nothingSelected = selectedIndexRef.current === -1;
+        if (nothingSelected && !onActivateNoneRef.current) return;
         e.preventDefault();
         // An Enter-triggered activation can reflow the page just like a
         // keyboard move can (HomeMenu's submenu expand is the concrete
         // case), so it gets the same hover guard.
         ignoreHoverRef.current = true;
-        onActivateRef.current?.(selectedIndexRef.current);
+        if (nothingSelected) {
+          onActivateNoneRef.current?.();
+        } else {
+          onActivateRef.current?.(selectedIndexRef.current);
+        }
       }
     };
 
