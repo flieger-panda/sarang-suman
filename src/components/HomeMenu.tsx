@@ -266,11 +266,14 @@ export default function HomeMenu({
       {Array.from({ length: LINE_COUNT }, (_, row) => {
         if (row === CENTER_ROW_INDEX) {
           return (
-            // The site's <h1>, and the only one on the home page. Preflight
-            // resets h1 to `font-size: inherit; font-weight: inherit;
-            // margin: 0`, and `text-2xl font-bold` re-applies the look, so
-            // this is a pure tag swap with no visual change.
-            <h1
+            // The row stays the positioning context for the cursor, and the
+            // <h1> wraps only the name. Putting the h1 on the row itself would
+            // be simpler but would make the site's most important heading read
+            // as ">sarang suman" — the cursor is decoration, and it lives
+            // inside the row. `inline` because Preflight leaves h1 as a block;
+            // font-size and weight inherit from the row, so the rendering is
+            // unchanged (verified byte-identical against a screenshot).
+            <div
               key={row}
               className="relative whitespace-pre text-2xl font-bold"
             >
@@ -288,14 +291,14 @@ export default function HomeMenu({
                   &gt;
                 </span>
               </span>
-              <span className="[text-shadow:0_0_14px_rgba(255,255,255,1)]">
+              <h1 className="inline [text-shadow:0_0_14px_rgba(255,255,255,1)]">
                 {NAME.split("").map((ch, i) => (
                   <span key={i} data-char className="inline-block opacity-0">
                     {ch}
                   </span>
                 ))}
-              </span>
-            </h1>
+              </h1>
+            </div>
           );
         }
 

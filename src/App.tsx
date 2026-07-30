@@ -13,6 +13,7 @@ import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import AboutMe from "./pages/AboutMe";
 import Music from "./pages/Music";
+import { useRouteMeta } from "./hooks/useRouteMeta";
 
 // Lazy specifically because of pdf.js: bundled eagerly it roughly doubles
 // the main chunk, and every page but this one loads it for nothing. The
@@ -32,6 +33,13 @@ function App() {
   const location = useLocation();
   const [revealed, setRevealed] = useState(false);
   const transitionRef = useRef<PageTransitionHandle>(null);
+
+  // Central rather than per-page: one call here covers every route, so a new
+  // page can't ship without its title and description. The static build
+  // already wrote the right head for whichever URL was loaded cold — this
+  // keeps it correct across in-app navigation, which never fetches a
+  // document. See src/hooks/useRouteMeta.ts.
+  useRouteMeta(location.pathname);
 
   // Hidden toggle: Enter on the home page's name row (see HomeMenu). Lives
   // up here rather than in HomeMenu so the glow keeps following the pointer
