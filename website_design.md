@@ -82,6 +82,29 @@ use this hook rather than hand-rolling the keydown/hover wiring again.
   `navigableHeadings`'s `##` headings share one `useArrowKeyList` instance and index space, in
   that fixed order — see `extractH2Titles`/`NavigableHeading` in `MarkdownContent.tsx`.
 
+## Markup semantics
+
+The visual design is deliberately minimal, which for a long time meant the markup was too — the
+page was divs all the way down. That turned out to cost real things that no pixel change buys back,
+so the rule now is: **use the element that describes what the thing is, and let Tailwind's Preflight
+make it look the same.** Preflight resets headings to `font-size: inherit; font-weight: inherit;
+margin: 0` and anchors to `color: inherit; text-decoration: inherit`, so in practice these swaps are
+free. Concretely:
+
+- **Menu rows that navigate are `<a href>`, not `<div onClick>`.** The old form meant the rendered
+  home page contained zero links — no crawl path from `/` to anywhere, and no "open in new tab" on
+  any menu item. `MenuRow` in `HomeMenu.tsx` emits an anchor when the row has a destination and a
+  div for the two submenu toggles, which aren't destinations. Modified clicks (cmd/ctrl/shift/alt)
+  deliberately fall through to the browser instead of being intercepted.
+- **Every page has exactly one `<h1>`, and the `>` cursor stays outside it.** On Home the row div
+  remains the positioning context for the absolutely-positioned cursor and the `<h1>` wraps only
+  the name — otherwise the site's most important heading reads as `>sarang suman`. Content pages get
+  their h1 from the markdown's `#` heading, which is why every `content/*.md` file needs one.
+- **Each page's content column is a `<main>`.** One landmark per page. Home has no `<nav>` landmark
+  because the menu rows are interleaved with blank spacer rows for vertical rhythm rather than being
+  contiguous siblings, so wrapping just the menu would mean restructuring the layout for less value
+  than `<main>` already provides.
+
 ## Wave motion (`waveMotion.ts`)
 
 The wave's *idle drift* — the intercept that eases on and off screen phase-shifted row to row,
@@ -95,6 +118,23 @@ an 80-column full-viewport row and a narrow side strip.
 Callers supply the two things that legitimately differ: `{ hidden, peek }` (how far the drift
 reaches) and `cycles`/`crestRow`. Surge/recede is *not* here — that's WaveHero's alone, layered on
 top of whatever position the idle drift produces.
+
+### The wave is CSS, not text
+
+Both wave components render each row's glyphs through a `::before` whose `content` comes from a
+per-row `--wave-row` custom property, rather than as a text node. This is not a style preference
+and shouldn't be "simplified" back — it's the fix for the wave being, quite literally, the content
+of this site as far as a crawler was concerned. `WaveHero` emits `LINE_COUNT * CHARS_PER_LINE` =
+2,560 glyphs on *every* route (it never unmounts — see below), and `SideWave` another ~1,344 on
+content pages, all ahead of the real copy in DOM order. Measured by rendering each route and
+extracting text the way a search engine does: 98% of the home page's text was wave glyphs, against
+7 real words; 80–92% on the content pages. Text in CSS generated content isn't indexed as page
+text, so this leaves only real copy for crawlers while rendering identically — the home page's
+settled screenshot is byte-identical before and after.
+
+Two intentional side effects: the wave is no longer selectable when you drag across the page (it's
+texture, so that's an improvement), and it vanishes with CSS disabled (also correct — it's
+decoration). Both components are `aria-hidden` for the same reason.
 
 ### Ambient wave layering
 
