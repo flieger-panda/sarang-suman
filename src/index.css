@@ -1,1 +1,21 @@
 @import "tailwindcss";
+@import "@fontsource/space-mono";
+@import "@fontsource/plus-jakarta-sans/700.css";
+
+@theme {
+  --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: "Plus Jakarta Sans", "Helvetica Neue", Arial, sans-serif;
+  --animate-blink: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+html,
+body {
+  background-color: black;
+  color-scheme: dark;
+}

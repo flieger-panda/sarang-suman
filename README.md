@@ -2,7 +2,7 @@
 
 WIP
 
-![The King](assets/lebron.jpeg)
+![The King](public/about/lebron.jpeg)
 
 ## Stack
 
