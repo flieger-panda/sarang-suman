@@ -3,6 +3,12 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # Build (but don't deploy) on PRs, so a broken build is caught before it
+  # reaches main. Every deploy failure this repo has hit — a bad Node pin, a
+  # macOS-only lockfile — landed on main first and left the site stuck on a
+  # stale build until it was fixed forward.
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -10,8 +16,10 @@ permissions:
   pages: write
   id-token: write
 
+# Keyed by ref so a new push to a PR cancels that PR's in-flight run without
+# touching the production deploy running off main.
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -21,16 +29,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # Single source of truth: .nvmrc drives CI and local nvm alike, so
+          # the two can't drift. pdfjs-dist requires Node >=22.13.
+          node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npm run lint
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: dist
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
