@@ -1,0 +1,27 @@
+version: 2
+
+updates:
+  # Bumps to the actions pinned in deploy.yml (checkout, setup-node,
+  # upload-pages-artifact, deploy-pages). These otherwise sit unnoticed until
+  # a major version is deprecated and the workflow starts failing.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: deps
+    groups:
+      # One PR per week for the noisy low-risk stuff, so routine patches
+      # don't bury the majors that actually need review.
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
