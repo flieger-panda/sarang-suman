@@ -316,6 +316,15 @@ export default function Resume() {
           </span>
         </Link>
 
+        {/* The only page not built from markdown, so it was the only one with
+            no <h1> at all — the others get theirs from the content file's `#`
+            heading. Same markup and position as Projects' heading (after the
+            back link, `mb-8`), so this page now matches the rest of the site
+            rather than being the exception. */}
+        <h1 className="font-heading mb-8 text-2xl font-bold text-white">
+          {revealChars("resume")}
+        </h1>
+
         <div className="border border-white/20 bg-black">
           <div className="flex items-center justify-between gap-4 border-b border-white/20 px-3 py-2">
             <span className="truncate font-mono text-xs text-white/50">
