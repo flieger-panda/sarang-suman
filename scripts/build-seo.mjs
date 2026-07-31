@@ -55,6 +55,11 @@ const RESUME_SRC = join(ROOT, "content", "Sarang_Suman_Resume.pdf");
 function loadProjects() {
   return readdirSync(CONTENT)
     .filter((file) => file.endsWith(".md"))
+    // Sorted by filename before the date sort below, because readdirSync order
+    // is filesystem-dependent — CI generates this on ext4 while it's verified
+    // on APFS. Three projects share `date: present`, and Array#sort is stable,
+    // so without this their order in sitemap.xml would differ between the two.
+    .sort()
     .map((file) => {
       const raw = readFileSync(join(CONTENT, file), "utf8");
       const { data, content } = parseFrontmatter(raw);

@@ -14,7 +14,12 @@ import { useCharReveal } from "../hooks/useCharReveal";
 import { useArrowKeyList } from "../hooks/useArrowKeyList";
 import { usePageTransition } from "./TransitionContext";
 
-// TODO: replace with real profile URLs.
+// These are the real profiles, and they're load-bearing beyond this menu: the
+// same three URLs are the JSON-LD `sameAs` list in src/lib/seo.mjs, which is
+// what tells Google that this domain and those accounts are one person. Keep
+// the two in step — a wrong URL here isn't just a dead link, it's a false
+// identity claim, which is worse than none for a name that collides with
+// several other people.
 const LINKEDIN_URL = "https://www.linkedin.com/in/sarangsuman";
 const INSTAGRAM_URL = "https://www.instagram.com/sarangrsuman/";
 const GITHUB_URL = "https://github.com/flieger-panda";
