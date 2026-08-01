@@ -9,9 +9,9 @@ I became interested in software engineering and development because I love immer
 
 ![Sarang Suman, software developer and Computer Science student at Georgia Tech](/about/sarang.jpg)
 
-I have a dog, [security question answer], who absolutely adores me whenever I have food to give her. Otherwise, she fondly tolerates my presence.
+I have a dog who absolutely adores me whenever I have food to give her. Otherwise, she fondly tolerates my presence.
 
-![My dog Meru](/about/meru.jpg)
+![My dog](/about/doggo.jpg)
 
 ## sportsball
 
