@@ -1,5 +1,10 @@
 ---
 date: 2024-01
+description: Traced and fixed a $300,000 ERP valuation discrepancy at a
+  manufacturer, auditing dataflows and validation logic down to a misconfigured
+  inventory workflow.
+keywords: ERP, data integrity, manufacturing software, dataflow auditing, inventory
+  management, process automation, debugging, financial systems
 ---
 # ERP Data Integrity Investigation & Manufacturing Pipeline Audit 
 

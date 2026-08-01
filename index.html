@@ -11,25 +11,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#000000" />
 
-    <title>sarang suman</title>
-    <meta name="description" content="software dev &amp; cs student @ GT" />
+    <!-- The title, description, canonical, social and JSON-LD tags below are
+         rewritten per route at build time by scripts/build-seo.mjs, which
+         emits one HTML file per URL (dist/skills.html,
+         dist/projects/nila.html, ...). The values here are the home page's.
+         Edit the route table in src/lib/seo.mjs, not this markup, or the two
+         will disagree; these are only the placeholders the script substitutes
+         into.
 
-    <!-- Absolute URLs: link scrapers (LinkedIn, iMessage, Slack, X) don't
-         resolve relative paths, so "/og.png" here would silently yield no
-         preview image at all. -->
-    <meta property="og:type" content="website" />
+         Note for future edits: build-seo.mjs rewrites this head with text
+         substitution, so avoid writing literal tag syntax in these comments.
+         Spelling one out here (in a comment describing the title element) is
+         what made an earlier version of the script match inside the comment
+         and swallow the whole head into it — the bytes all looked correct to
+         grep, but the parsed document had no title or description at all.
+         There's an assertion in the script that now catches this.
+
+         Absolute URLs throughout: link scrapers (LinkedIn, iMessage, Slack,
+         X) don't resolve relative paths, so "/og.png" here would silently
+         yield no preview image at all. -->
+    <title>Sarang Suman — Software Developer | Georgia Tech CS</title>
+    <meta
+      name="description"
+      content="Sarang Suman — software developer and third-year Computer Science student at Georgia Tech in Atlanta. Full-stack, Python/ML, and IoT work."
+    />
+    <link rel="canonical" href="https://sarangsuman.me/" />
+
+    <meta property="og:type" content="profile" />
     <meta property="og:url" content="https://sarangsuman.me/" />
-    <meta property="og:title" content="sarang suman" />
-    <meta property="og:description" content="software dev &amp; cs student @ GT" />
+    <meta property="og:site_name" content="Sarang Suman" />
+    <meta property="og:title" content="Sarang Suman — Software Developer | Georgia Tech CS" />
+    <meta
+      property="og:description"
+      content="Sarang Suman — software developer and third-year Computer Science student at Georgia Tech in Atlanta. Full-stack, Python/ML, and IoT work."
+    />
     <meta property="og:image" content="https://sarangsuman.me/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="sarang suman — terminal-style menu on black" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="sarang suman" />
-    <meta name="twitter:description" content="software dev &amp; cs student @ GT" />
+    <meta name="twitter:title" content="Sarang Suman — Software Developer | Georgia Tech CS" />
+    <meta
+      name="twitter:description"
+      content="Sarang Suman — software developer and third-year Computer Science student at Georgia Tech in Atlanta. Full-stack, Python/ML, and IoT work."
+    />
     <meta name="twitter:image" content="https://sarangsuman.me/og.png" />
+
+    <!-- Structured data. This is the highest-leverage tag on the site for the
+         query "sarang suman": the name collides with several other people, and
+         the Person node's `sameAs` is what tells Google that this domain, the
+         LinkedIn profile that already ranks for the name, and the GitHub
+         account are one entity. Rewritten per route by build-seo.mjs. -->
+    <script type="application/ld+json">
+      {}
+    </script>
+
+    <!-- Google tag (gtag.js). This is the only HTML entry point — the build
+         copies it to 404.html for Pages' SPA fallback — so it covers every
+         route. Client-side navigations (BrowserRouter pushState) are counted
+         by GA4's enhanced measurement "page changes based on browser history
+         events", which is on by default; don't also send page_view manually
+         unless that setting is turned off, or every route change is
+         double-counted. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-11XJ7LYJ2N"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // Only report from the live site: `npm run dev` and `npm run preview`
+      // both serve on localhost, and without this gate they'd send real hits
+      // into the property. gtag.js still loads locally, but with no config it
+      // sends nothing and sets no cookie — so if you're checking Realtime and
+      // seeing zero traffic from your own machine, that's this, not a broken
+      // tag. Exact hostnames rather than a suffix match, so a lookalike
+      // domain can't report into this property.
+      if (
+        location.hostname === 'sarangsuman.me' ||
+        location.hostname === 'www.sarangsuman.me'
+      ) {
+        gtag('config', 'G-11XJ7LYJ2N');
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

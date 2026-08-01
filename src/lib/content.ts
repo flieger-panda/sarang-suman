@@ -3,6 +3,12 @@
 // build time (import.meta.glob), so this stays a fully static site — no
 // runtime fetch, no backend.
 
+import {
+  parseFrontmatter,
+  splitList,
+  titleFromMarkdown,
+} from "./frontmatter.mjs";
+
 const aboutModules = import.meta.glob("../../content/about.md", {
   query: "?raw",
   import: "default",
@@ -33,25 +39,8 @@ export const skillsContent = Object.values(skillsModules)[0] ?? "";
 
 export const musicContent = Object.values(musicModules)[0] ?? "";
 
-function titleFromMarkdown(markdown: string, fallback: string): string {
-  const heading = markdown.match(/^#\s+(.+)$/m);
-  return heading ? heading[1].trim() : fallback;
-}
-
 function slugFromPath(path: string): string {
   return path.split("/").pop()!.replace(/\.md$/, "");
-}
-
-// Frontmatter carries a `date` field (YYYY-MM, or "present" for ongoing
-// work) used to sort entries; it's stripped before the markdown is rendered.
-function parseFrontmatter(markdown: string): {
-  date: string;
-  content: string;
-} {
-  const match = markdown.match(/^---\n([\s\S]*?)\n---\n?/);
-  if (!match) return { date: "", content: markdown };
-  const date = match[1].match(/^date:\s*(.+)$/m)?.[1].trim() ?? "";
-  return { date, content: markdown.slice(match[0].length) };
 }
 
 // "present" sorts after any YYYY-MM date since "9999" > any real year.
@@ -62,15 +51,31 @@ function dateSortKey(date: string): string {
 export type Project = {
   slug: string;
   title: string;
+  /** YYYY-MM, or "present" for ongoing work. Sorts the projects list. */
   date: string;
+  /**
+   * Metadata-only fields: these never render on the page. They feed the
+   * per-route <title>, <meta description>, and JSON-LD `keywords` (see
+   * src/lib/seo.mjs), which is why a project can be described for search
+   * without adding anything to the visible, deliberately minimal copy.
+   */
+  description: string;
+  keywords: string[];
   content: string;
 };
 
 export const projects: Project[] = Object.entries(projectModules)
   .map(([path, raw]) => {
     const slug = slugFromPath(path);
-    const { date, content } = parseFrontmatter(raw);
-    return { slug, title: titleFromMarkdown(content, slug), date, content };
+    const { data, content } = parseFrontmatter(raw);
+    return {
+      slug,
+      title: titleFromMarkdown(content, slug),
+      date: data.date ?? "",
+      description: data.description ?? "",
+      keywords: splitList(data.keywords),
+      content,
+    };
   })
   .sort((a, b) => dateSortKey(b.date).localeCompare(dateSortKey(a.date)));
 

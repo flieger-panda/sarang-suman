@@ -1,5 +1,9 @@
 ---
 date: present
+description: This site: a static React, TypeScript, and Vite single-page app with
+  no backend, where every write-up is a Markdown file Vite inlines at build time.
+keywords: React, TypeScript, Vite, Tailwind CSS, React Router, react-markdown,
+  Motion, anime.js, static site, frontend development
 ---
 # 🧌 This Website 
 

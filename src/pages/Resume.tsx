@@ -287,7 +287,9 @@ export default function Resume() {
           would just sit behind the viewer. */}
       <SideWave className="hidden md:flex md:w-40 lg:w-64" />
 
-      <div className="relative z-10 mx-auto max-w-4xl px-6 py-16">
+      {/* <main> landmark: the page's content column. `main` and `div`
+          are both display:block, so this is a pure tag swap. */}
+      <main className="relative z-10 mx-auto max-w-4xl px-6 py-16">
         <Link
           to="/"
           className="relative mb-8 inline-block font-mono text-white"
@@ -313,6 +315,15 @@ export default function Resume() {
             {revealChars("< back")}
           </span>
         </Link>
+
+        {/* The only page not built from markdown, so it was the only one with
+            no <h1> at all — the others get theirs from the content file's `#`
+            heading. Same markup and position as Projects' heading (after the
+            back link, `mb-8`), so this page now matches the rest of the site
+            rather than being the exception. */}
+        <h1 className="font-heading mb-8 text-2xl font-bold text-white">
+          {revealChars("resume")}
+        </h1>
 
         <div className="border border-white/20 bg-black">
           <div className="flex items-center justify-between gap-4 border-b border-white/20 px-3 py-2">
@@ -406,7 +417,7 @@ export default function Resume() {
             )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

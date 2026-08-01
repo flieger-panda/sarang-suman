@@ -1,5 +1,10 @@
 ---
 date: 2025-05
+description: Real-time state estimation for an autonomous UAV at Georgia Tech: an
+  Extended Kalman Filter in C++ fusing IMU, altimeter, and GPS for closed-loop
+  flight control.
+keywords: C++, Python, Extended Kalman Filter, EKF, sensor fusion, GNC, avionics,
+  UAV, state estimation, control systems, Georgia Tech
 ---
 # EKF-Based Sensor Fusion for UAV Flight Control
 

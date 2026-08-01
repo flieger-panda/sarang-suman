@@ -1,5 +1,10 @@
 ---
 date: 2025-12
+description: An IoT facility-management MVP with real-time MQTT device-state
+  syncing, scalable Firestore data models, and an AI floorplan-scanning
+  onboarding pipeline.
+keywords: React, Firebase, Firestore, MQTT, IoT, real-time systems, pub/sub,
+  startup MVP, data modeling
 ---
 # IoT Facility Management Platform
 

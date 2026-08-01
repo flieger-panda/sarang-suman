@@ -70,7 +70,9 @@ export default function Projects() {
   return (
     <div ref={containerRef} className="relative min-h-svh bg-black">
       <SideWave className="hidden md:flex md:w-40 lg:w-64" />
-      <div className="relative z-10 mx-auto max-w-2xl px-6 py-16">
+      {/* <main> landmark: the page's content column. `main` and `div`
+          are both display:block, so this is a pure tag swap. */}
+      <main className="relative z-10 mx-auto max-w-2xl px-6 py-16">
         <div className="mb-8">
           <CursorLink
             entry={BACK_ENTRY}
@@ -95,7 +97,7 @@ export default function Projects() {
             );
           })}
         </ul>
-      </div>
+      </main>
     </div>
   );
 }

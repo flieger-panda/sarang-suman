@@ -1,4 +1,11 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { LINE_COUNT, CENTER_ROW_INDEX, NAME } from "./waveHeroLayout";
 import PixelIcon, { type PixelBitmap } from "./PixelIcon";
@@ -7,7 +14,12 @@ import { useCharReveal } from "../hooks/useCharReveal";
 import { useArrowKeyList } from "../hooks/useArrowKeyList";
 import { usePageTransition } from "./TransitionContext";
 
-// TODO: replace with real profile URLs.
+// These are the real profiles, and they're load-bearing beyond this menu: the
+// same three URLs are the JSON-LD `sameAs` list in src/lib/seo.mjs, which is
+// what tells Google that this domain and those accounts are one person. Keep
+// the two in step — a wrong URL here isn't just a dead link, it's a false
+// identity claim, which is worse than none for a name that collides with
+// several other people.
 const LINKEDIN_URL = "https://www.linkedin.com/in/sarangsuman";
 const INSTAGRAM_URL = "https://www.instagram.com/sarangrsuman/";
 const GITHUB_URL = "https://github.com/flieger-panda";
@@ -73,12 +85,95 @@ type FlatEntry =
 const TOP_ROW_GAP = 2;
 const SUB_ROW_GAP = 1;
 
+// The URL a row leads to, or undefined for the two submenu toggles
+// (`portfolio`, `socials`), which expand rather than navigate.
+function entryLink(
+  entry: FlatEntry,
+): { href: string; external: boolean } | undefined {
+  const node = MENU[entry.topIndex];
+  if (entry.type === "top") {
+    return node.kind === "link"
+      ? { href: node.href, external: false }
+      : undefined;
+  }
+  if (node.kind !== "submenu") return undefined;
+  const item = node.items[entry.subIndex];
+  return { href: item.href, external: Boolean(item.external) };
+}
+
+// Rows that lead somewhere render as real <a href> elements; the submenu
+// toggles stay plain divs.
+//
+// The anchors are the point: these rows used to be divs with an onClick
+// calling navigate(), which meant the rendered home page contained *zero*
+// links — Googlebot landing on `/` had no path to any other page on the
+// site, and nothing crawlable pointed at `/projects`. Tailwind's Preflight
+// resets anchors to `color: inherit; text-decoration: inherit`, and a flex
+// child is blockified regardless of `display: inline`, so swapping div → a
+// is visually identical here.
+//
+// Defined at module scope so its identity is stable across renders. A
+// component re-created each render reads to React as a different component
+// and remounts the row, which would drop the opacity anime.js sets directly
+// on the [data-char] spans — the same hazard documented in MarkdownContent.
+function MenuRow({
+  link,
+  className,
+  onHover,
+  onActivate,
+  children,
+}: {
+  link?: { href: string; external: boolean };
+  className: string;
+  onHover: () => void;
+  onActivate: () => void;
+  children: ReactNode;
+}) {
+  const handleClick = (event: ReactMouseEvent<HTMLElement>) => {
+    // Modified clicks fall through to the browser, so cmd/ctrl/shift-click
+    // opens a menu item in a new tab — which it couldn't do at all while
+    // these were divs without an href.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    onActivate();
+  };
+
+  if (!link) {
+    return (
+      <div className={className} onMouseEnter={onHover} onClick={handleClick}>
+        {children}
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={link.href}
+      // rel="me" is the HTML counterpart to the JSON-LD `sameAs` list (see
+      // src/lib/seo.mjs): it asserts these profiles are the same person.
+      // Submenu rows only exist in the DOM once expanded, so JSON-LD carries
+      // the machine-readable claim for crawlers; this is for parsers that
+      // follow rel="me" on a page they're already interacting with.
+      {...(link.external
+        ? { target: "_blank", rel: "me noopener noreferrer" }
+        : {})}
+      className={className}
+      onMouseEnter={onHover}
+      onClick={handleClick}
+    >
+      {children}
+    </a>
+  );
+}
+
 export default function HomeMenu({
   onToggleGlow,
 }: {
   onToggleGlow: () => void;
 }) {
-  const menuRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const transitionRef = usePageTransition();
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
@@ -164,13 +259,25 @@ export default function HomeMenu({
   });
 
   return (
-    <div
+    // <main> rather than a plain div: this container is the whole of the home
+    // page's content. A <nav> landmark around just the menu rows isn't
+    // possible without restructuring the layout, because the rows are
+    // interleaved with blank spacer rows for vertical rhythm rather than
+    // being contiguous siblings.
+    <main
       ref={menuRef}
       className="pointer-events-none fixed inset-0 z-[5] flex h-svh flex-col items-center justify-center overflow-hidden font-mono text-lg text-white"
     >
       {Array.from({ length: LINE_COUNT }, (_, row) => {
         if (row === CENTER_ROW_INDEX) {
           return (
+            // The row stays the positioning context for the cursor, and the
+            // <h1> wraps only the name. Putting the h1 on the row itself would
+            // be simpler but would make the site's most important heading read
+            // as ">sarang suman" — the cursor is decoration, and it lives
+            // inside the row. `inline` because Preflight leaves h1 as a block;
+            // font-size and weight inherit from the row, so the rendering is
+            // unchanged (verified byte-identical against a screenshot).
             <div
               key={row}
               className="relative whitespace-pre text-2xl font-bold"
@@ -189,13 +296,13 @@ export default function HomeMenu({
                   &gt;
                 </span>
               </span>
-              <span className="[text-shadow:0_0_14px_rgba(255,255,255,1)]">
+              <h1 className="inline [text-shadow:0_0_14px_rgba(255,255,255,1)]">
                 {NAME.split("").map((ch, i) => (
                   <span key={i} data-char className="inline-block opacity-0">
                     {ch}
                   </span>
                 ))}
-              </span>
+              </h1>
             </div>
           );
         }
@@ -216,11 +323,12 @@ export default function HomeMenu({
 
           if (!isSub) {
             return (
-              <div
+              <MenuRow
                 key={entryKey}
+                link={entryLink(entry)}
                 className="relative pointer-events-auto cursor-pointer whitespace-pre"
-                onMouseEnter={() => hoverSelect(flatIndex)}
-                onClick={() => {
+                onHover={() => hoverSelect(flatIndex)}
+                onActivate={() => {
                   setSelectedIndex(flatIndex);
                   activate(entry);
                 }}
@@ -256,7 +364,7 @@ export default function HomeMenu({
                     </span>
                   ))}
                 </span>
-              </div>
+              </MenuRow>
             );
           }
 
@@ -266,11 +374,12 @@ export default function HomeMenu({
           // Smaller and tighter than top-level items, but centered the
           // same way (no leading indent) so the column stays aligned.
           return (
-            <div
+            <MenuRow
               key={entryKey}
+              link={entryLink(entry)}
               className="relative pointer-events-auto cursor-pointer whitespace-pre text-sm"
-              onMouseEnter={() => hoverSelect(flatIndex)}
-              onClick={() => {
+              onHover={() => hoverSelect(flatIndex)}
+              onActivate={() => {
                 setSelectedIndex(flatIndex);
                 activate(entry);
               }}
@@ -300,7 +409,7 @@ export default function HomeMenu({
               >
                 {entry.label}
               </span>
-            </div>
+            </MenuRow>
           );
         }
 
@@ -310,6 +419,6 @@ export default function HomeMenu({
           </div>
         );
       })}
-    </div>
+    </main>
   );
 }
