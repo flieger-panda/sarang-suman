@@ -44,7 +44,8 @@ const BACK_INDEX = 0;
 const ZOOM_OUT_INDEX = 1;
 const ZOOM_IN_INDEX = 2;
 const DOWNLOAD_INDEX = 3;
-const ENTRY_COUNT = 4;
+const FULLSCREEN_INDEX = 4;
+const ENTRY_COUNT = 5;
 
 // "native" is the guarantee that the resume is always readable: whatever
 // stops pdf.js — a blocked worker, a browser too old for module workers, a
@@ -163,6 +164,32 @@ export default function Resume() {
 
   const paneRef = useRef<HTMLDivElement>(null);
   const [paneWidth, setPaneWidth] = useState(0);
+
+  // Fullscreens the whole bordered box (toolbar + pane), not just the pane,
+  // so the controls stay reachable while fullscreen. Tracked via the
+  // `fullscreenchange` event rather than the click handler alone because
+  // the browser's own Escape-to-exit (and multi-tab edge cases) bypass our
+  // toggle entirely — the event is the only source of truth for whether
+  // we're still in it.
+  const viewerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === viewerRef.current);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+    } else {
+      void viewerRef.current?.requestFullscreen();
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -325,7 +352,17 @@ export default function Resume() {
           {revealChars("resume")}
         </h1>
 
-        <div className="border border-white/20 bg-black">
+        <div
+          ref={viewerRef}
+          className={
+            "border border-white/20 bg-black " +
+            // The Fullscreen API's UA stylesheet stretches the fullscreen
+            // element to fill the viewport, but its children don't inherit
+            // that — without `flex flex-col`, the pane below would keep its
+            // normal-flow height and leave the rest of the screen black.
+            (isFullscreen ? "flex h-full flex-col" : "")
+          }
+        >
           <div className="flex items-center justify-between gap-4 border-b border-white/20 px-3 py-2">
             <span className="truncate font-mono text-xs text-white/50">
               {revealChars(DOWNLOAD_NAME)}
@@ -360,13 +397,22 @@ export default function Resume() {
                 onSelect={() => hoverSelect(DOWNLOAD_INDEX)}
                 href={resumeUrl}
               />
+              <ControlButton
+                icon={PIXEL_ICONS.fullscreen}
+                label={isFullscreen ? "exit fullscreen" : "fullscreen"}
+                isSelected={selectedIndex === FULLSCREEN_INDEX}
+                onSelect={() => hoverSelect(FULLSCREEN_INDEX)}
+                onPress={toggleFullscreen}
+                disabled={!document.fullscreenEnabled}
+              />
             </div>
           </div>
 
           <div
             ref={paneRef}
             className={
-              "h-[75svh] overscroll-contain " +
+              (isFullscreen ? "flex-1 " : "h-[75svh] ") +
+              "overscroll-contain " +
               // The native viewer fills the pane edge to edge and brings its
               // own scrolling, so the padding and scroll container that the
               // canvas stack needs would only double up on it.

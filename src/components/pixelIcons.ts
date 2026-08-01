@@ -90,4 +90,12 @@ export const PIXEL_ICONS = {
     "#.........#",
     "###########",
 ],
+  fullscreen: [
+    "...###",
+    ".....#",
+    ".....#",
+    "#.....",
+    "#.....",
+    "###...",
+],
 } satisfies Record<string, PixelBitmap>;
