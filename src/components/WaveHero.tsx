@@ -40,6 +40,22 @@ const ROW_CHARS = Array.from({ length: LINE_COUNT }, (_, row) =>
   }),
 );
 
+// A handful of easter egg glyphs, placed once at random distinct cells in
+// the grid (picked at module load, same as the rest of the texture) rather
+// than per row, so exactly this many 🍉 ever appear rather than one per row
+// on average.
+const MELON_COUNT = 3;
+const melonCells = new Set<string>();
+while (melonCells.size < MELON_COUNT) {
+  const row = Math.floor(Math.random() * LINE_COUNT);
+  const col = Math.floor(Math.random() * CHARS_PER_LINE);
+  melonCells.add(`${row},${col}`);
+}
+for (const cell of melonCells) {
+  const [row, col] = cell.split(",").map(Number);
+  ROW_CHARS[row][col] = "🍉";
+}
+
 // Each row as a quoted CSS <string>, fed to a `::before` via a custom
 // property instead of being rendered as a text node.
 //
