@@ -32,8 +32,9 @@ There is no test suite configured yet.
 
 ## SEO
 
-See `seo_plan.md` for the full rationale and `seo_manual_steps.md` for the off-page work that
-isn't in the repo. The invariants that are easy to break by accident:
+Everything a contributor needs is below — the longer rationale and the off-page checklist live in
+`personal/`, which is gitignored and won't exist in a fresh clone, so don't rely on it. The
+invariants that are easy to break by accident:
 
 - **`src/lib/seo.mjs` is the single source of truth for per-route metadata.** Titles,
   descriptions, canonical URLs, and the JSON-LD graph all come from its route table. `index.html`'s

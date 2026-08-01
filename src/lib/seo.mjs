@@ -43,8 +43,11 @@ export const SITE = {
   // The other half of entity resolution for a name with active collisions
   // ("Suman Sarang", "Sarang Samant", raga Sarang...). `sameAs` is the
   // machine-readable assertion that this domain and these profiles are one
-  // person; it only carries weight alongside links pointing back here, which
-  // is the manual half — see seo_manual_steps.md.
+  // person; it only carries weight alongside links pointing back here, so each
+  // of these profiles needs sarangsuman.me in its own website/bio field.
+  //
+  // Must stay in step with the URLs in HomeMenu.tsx — a wrong entry here is a
+  // false identity claim, which is worse for a colliding name than none.
   sameAs: [
     "https://www.linkedin.com/in/sarangsuman",
     "https://github.com/flieger-panda",

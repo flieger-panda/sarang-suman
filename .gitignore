@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Personal working notes — plans, checklists, scratch. Local only, not part of
+# the project. The invariants any of this produced that a contributor actually
+# needs are written into CLAUDE.md and website_design.md instead, so nothing
+# tracked depends on a file in here existing.
+personal/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
