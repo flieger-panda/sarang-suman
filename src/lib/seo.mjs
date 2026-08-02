@@ -20,10 +20,8 @@ import { cleanTitle } from "./frontmatter.mjs";
 
 export const SITE = {
   origin: "https://sarangsuman.me",
-  // Capitalized deliberately, unlike the site's lowercase on-page treatment:
-  // <title>, meta descriptions and structured data are SERP and browser
-  // chrome, not part of the page's visual design, and a lowercase name reads
-  // as less authoritative in a result for a person's name.
+  // Keep canonical identity text in normal capitalization. Route-level title
+  // and description copy can use the site's lowercase style where intended.
   name: "Sarang Suman",
   jobTitle: "Software Developer",
   email: "sarangrsuman@gmail.com",
@@ -32,7 +30,7 @@ export const SITE = {
   country: "US",
   image: "/about/sarang.jpg",
   ogImage: "/og.png",
-  ogImageAlt: "sarang suman — terminal-style menu on black",
+  ogImageAlt: "sarang suman - terminal-style menu on black",
   // Stable copy of the résumé, outside Vite's content-hashed assets. See
   // public/Sarang_Suman_Resume.pdf and the note in scripts/build-seo.mjs.
   resumePdf: "/Sarang_Suman_Resume.pdf",
@@ -87,15 +85,15 @@ export function absolute(path) {
 const STATIC_ROUTES = [
   {
     path: "/",
-    title: "Sarang Suman — Software Developer | Georgia Tech CS",
+    title: "sarang suman - software developer | georgia tech cs",
     description:
-      "Sarang Suman — software developer and third-year Computer Science student at Georgia Tech in Atlanta. Full-stack, Python/ML, and IoT work.",
+      "sarang suman - software developer and third-year computer science student at georgia tech in atlanta. full-stack, python/ML, and IoT work.",
     ogType: "profile",
     kind: "profile",
   },
   {
     path: "/about-me",
-    title: "About — Sarang Suman, Software Developer in Atlanta",
+    title: "About - Sarang Suman, Software Developer in Atlanta",
     description:
       "About Sarang Suman: a software developer and Georgia Tech CS student in Atlanta, working across full-stack web, Python data/ML, and IoT systems.",
     ogType: "profile",
@@ -103,7 +101,7 @@ const STATIC_ROUTES = [
   },
   {
     path: "/skills",
-    title: "Skills — Sarang Suman | Python, React, FastAPI, IoT",
+    title: "Skills - Sarang Suman | Python, React, FastAPI, IoT",
     description:
       "The languages, frameworks, and tools Sarang Suman builds with: Python, TypeScript, React, FastAPI, PostgreSQL, ESP32/MQTT, TensorFlow, and Docker.",
     ogType: "website",
@@ -111,7 +109,7 @@ const STATIC_ROUTES = [
   },
   {
     path: "/projects",
-    title: "Projects — Sarang Suman | Software Portfolio",
+    title: "Projects - Sarang Suman | Software Portfolio",
     description:
       "Software development projects by Sarang Suman: IoT presence detection, EKF sensor fusion for UAV flight control, full-stack web apps, and applied ML.",
     ogType: "website",
@@ -119,7 +117,7 @@ const STATIC_ROUTES = [
   },
   {
     path: "/resume",
-    title: "Resume — Sarang Suman, Software Developer",
+    title: "Resume - Sarang Suman, Software Developer",
     description:
       "Resume of Sarang Suman, software developer and Computer Science student at Georgia Tech in Atlanta. Readable in the browser or downloadable as a PDF.",
     ogType: "profile",
@@ -127,9 +125,9 @@ const STATIC_ROUTES = [
   },
   {
     path: "/music",
-    title: "Music — Sarang Suman",
+    title: "Music - Sarang Suman",
     description:
-      "What Sarang Suman is listening to — Spotify profile and the current playlist.",
+      "What Sarang Suman is listening to - Spotify profile and the current playlist.",
     ogType: "website",
     kind: "page",
   },
@@ -141,8 +139,8 @@ const STATIC_ROUTES = [
 // its canonical the way a plain copy of index.html would.
 export const NOT_FOUND_ROUTE = {
   path: "/404",
-  title: `Page not found — ${SITE.name}`,
-  description: `That page doesn't exist. ${SITE.name} — software developer and Computer Science student at Georgia Tech in Atlanta.`,
+  title: `Page not found - ${SITE.name}`,
+  description: `That page doesn't exist. ${SITE.name} - software developer and Computer Science student at Georgia Tech in Atlanta.`,
   ogType: "website",
   kind: "notFound",
 };
@@ -151,12 +149,12 @@ export const NOT_FOUND_ROUTE = {
 export function projectRoutes(projects) {
   return projects.map((project) => ({
     path: `/projects/${project.slug}`,
-    title: `${cleanTitle(project.title)} — ${SITE.name}`,
+    title: `${cleanTitle(project.title)} - ${SITE.name}`,
     // Falls back to a generic line rather than emitting an empty description
     // if a new project file ever lands without one.
     description:
       project.description ||
-      `${cleanTitle(project.title)} — a project by ${SITE.name}.`,
+      `${cleanTitle(project.title)} - a project by ${SITE.name}.`,
     ogType: "article",
     kind: "project",
     project,
@@ -241,7 +239,7 @@ function pageNode(route) {
       isPartOf: { "@id": WEBSITE_ID },
       mainEntity: {
         "@type": "DigitalDocument",
-        name: `${SITE.name} — Resume`,
+        name: `${SITE.name} - Resume`,
         url: absolute(SITE.resumePdf),
         encodingFormat: "application/pdf",
         about: { "@id": PERSON_ID },
