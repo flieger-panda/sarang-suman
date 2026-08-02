@@ -184,9 +184,9 @@ export default function Resume() {
   }, []);
 
   const toggleFullscreen = () => {
-    if (document.fullscreenElement) {
+    if (document.fullscreenElement === viewerRef.current) {
       void document.exitFullscreen();
-    } else {
+    } else if (!document.fullscreenElement) {
       void viewerRef.current?.requestFullscreen();
     }
   };
