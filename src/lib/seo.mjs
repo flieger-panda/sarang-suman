@@ -20,10 +20,8 @@ import { cleanTitle } from "./frontmatter.mjs";
 
 export const SITE = {
   origin: "https://sarangsuman.me",
-  // Capitalized deliberately, unlike the site's lowercase on-page treatment:
-  // <title>, meta descriptions and structured data are SERP and browser
-  // chrome, not part of the page's visual design, and a lowercase name reads
-  // as less authoritative in a result for a person's name.
+  // Keep canonical identity text in normal capitalization. Route-level title
+  // and description copy can use the site's lowercase style where intended.
   name: "Sarang Suman",
   jobTitle: "Software Developer",
   email: "sarangrsuman@gmail.com",
@@ -87,9 +85,9 @@ export function absolute(path) {
 const STATIC_ROUTES = [
   {
     path: "/",
-    title: "Sarang Suman - Software Developer | Georgia Tech CS",
+    title: "sarang suman - software developer | georgia tech cs",
     description:
-      "Sarang Suman - software developer and third-year Computer Science student at Georgia Tech in Atlanta. Full-stack, Python/ML, and IoT work.",
+      "sarang suman - software developer and third-year computer science student at georgia tech in atlanta. full-stack, python/ML, and IoT work.",
     ogType: "profile",
     kind: "profile",
   },
