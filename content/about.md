@@ -2,7 +2,7 @@
 
 ## what i do
 
-I'm Sarang Suman — a software developer and 3rd year Computer Science student at Georgia Tech in Atlanta, specializing in the Intelligence and People threads. 
+I'm Sarang Suman, a software developer and 3rd year Computer Science student at Georgia Tech in Atlanta, specializing in the Intelligence and People threads. 
 I do work in full-stack software development, data analysis/ML in Python, and web development.
 
 I became interested in software engineering and development because I love immersing myself in building things that I can see working in real-time. I have experience with building IoT systems and infrastructure, writing REST APIs in Python, and applying software to manufacturing. 
