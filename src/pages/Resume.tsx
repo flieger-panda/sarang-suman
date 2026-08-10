@@ -171,19 +171,41 @@ export default function Resume() {
   // the browser's own Escape-to-exit (and multi-tab edge cases) bypass our
   // toggle entirely — the event is the only source of truth for whether
   // we're still in it.
+  //
+  // Fallback for phone browser w/o fullscreen API
   const viewerRef = useRef<HTMLDivElement>(null);
+  const [supportsFullscreenApi] = useState(
+    () => typeof document.documentElement.requestFullscreen === "function",
+  );
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
+    if (!supportsFullscreenApi) return;
     const handleFullscreenChange = () => {
       setIsFullscreen(document.fullscreenElement === viewerRef.current);
     };
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () =>
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, []);
+  }, [supportsFullscreenApi]);
+
+  // Locks background scroll for the CSS-fallback overlay only — the real
+  // Fullscreen API already isolates the element from the rest of the page,
+  // so doing this unconditionally would fight it.
+  useEffect(() => {
+    if (supportsFullscreenApi || !isFullscreen) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = original;
+    };
+  }, [supportsFullscreenApi, isFullscreen]);
 
   const toggleFullscreen = () => {
+    if (!supportsFullscreenApi) {
+      setIsFullscreen((current) => !current);
+      return;
+    }
     if (document.fullscreenElement === viewerRef.current) {
       void document.exitFullscreen();
     } else if (!document.fullscreenElement) {
@@ -356,11 +378,21 @@ export default function Resume() {
           ref={viewerRef}
           className={
             "border border-white/20 bg-black " +
-            // The Fullscreen API's UA stylesheet stretches the fullscreen
-            // element to fill the viewport, but its children don't inherit
-            // that — without `flex flex-col`, the pane below would keep its
-            // normal-flow height and leave the rest of the screen black.
-            (isFullscreen ? "flex h-full flex-col" : "")
+            (isFullscreen
+              ? supportsFullscreenApi
+                ? // The Fullscreen API's UA stylesheet stretches the
+                  // fullscreen element to fill the viewport, but its children
+                  // don't inherit that — without `flex flex-col`, the pane
+                  // below would keep its normal-flow height and leave the
+                  // rest of the screen black.
+                  "flex h-full flex-col"
+                : // CSS fallback for browsers with no Fullscreen API
+                  // (iOS Safari): a fixed overlay standing in for it. `inset-0`
+                  // alone sizes it to the visual viewport, which keeps
+                  // tracking a mobile browser's address bar showing/hiding —
+                  // an explicit height (`100dvh` included) would not.
+                  "fixed inset-0 z-50 flex flex-col"
+              : "")
           }
         >
           <div className="flex items-center justify-between gap-4 border-b border-white/20 px-3 py-2">
@@ -403,7 +435,6 @@ export default function Resume() {
                 isSelected={selectedIndex === FULLSCREEN_INDEX}
                 onSelect={() => hoverSelect(FULLSCREEN_INDEX)}
                 onPress={toggleFullscreen}
-                disabled={!document.fullscreenEnabled}
               />
             </div>
           </div>
