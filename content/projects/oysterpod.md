@@ -1,6 +1,6 @@
 ---
 date: 2024-05
-description: An offline-first edge computing initiative I founded, distributing
+description: An offline-first edge computing initiative I founded, distributing a
   fleet of 40+ Linux devices running Kolibri with bundled curriculum, deployed
   across Metro Atlanta and rural India with zero dependency on connectivity.
 keywords: Linux, Bash, system administration, scripting, automation, provisioning,
