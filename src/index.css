@@ -6,11 +6,25 @@
   --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-heading: "Plus Jakarta Sans", "Helvetica Neue", Arial, sans-serif;
   --animate-blink: blink 1s step-end infinite;
+  --animate-key-bob: key-bob 1.6s ease-in-out infinite;
 }
 
 @keyframes blink {
   50% {
     opacity: 0;
+  }
+}
+
+/* The arrow-key hint on the home page. Two keys share this one keyframe and
+   are pulled out of phase with a negative animation-delay, so the pair reads
+   as one nudging gesture rather than two icons twitching in lockstep. */
+@keyframes key-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
   }
 }
 
