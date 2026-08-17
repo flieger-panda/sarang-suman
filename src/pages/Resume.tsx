@@ -430,7 +430,7 @@ export default function Resume() {
                 href={resumeUrl}
               />
               <ControlButton
-                icon={PIXEL_ICONS.fullscreen}
+                icon={isFullscreen ? PIXEL_ICONS.minimize : PIXEL_ICONS.fullscreen}
                 label={isFullscreen ? "exit fullscreen" : "fullscreen"}
                 isSelected={selectedIndex === FULLSCREEN_INDEX}
                 onSelect={() => hoverSelect(FULLSCREEN_INDEX)}

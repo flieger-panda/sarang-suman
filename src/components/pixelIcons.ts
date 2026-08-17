@@ -98,4 +98,12 @@ export const PIXEL_ICONS = {
     "#.....",
     "###...",
 ],
+  minimize: [
+    "...#..",
+    "...#..",
+    "...###",
+    "###...",
+    "..#...",
+    "..#...",
+],
 } satisfies Record<string, PixelBitmap>;
