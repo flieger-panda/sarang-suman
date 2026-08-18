@@ -419,6 +419,28 @@ export default function HomeMenu({
           </div>
         );
       })}
+
+      {/* Arrow-key affordance. Hidden below `sm` because a touch device has
+          no arrow keys to advertise, and the home page is short enough there
+          that a corner ornament crowds the menu. The keys are aria-hidden and
+          paired with an sr-only sentence: read aloud, two key glyphs on their
+          own say nothing useful. */}
+      <div className="absolute right-5 bottom-5 hidden items-center text-white/40 sm:right-8 sm:bottom-6 sm:flex">
+        <span className="sr-only">Use the arrow keys to navigate.</span>
+        <span aria-hidden="true" className="flex items-center gap-1.5">
+          <PixelIcon
+            bitmap={PIXEL_ICONS.keyUp}
+            className="h-4 w-6 animate-key-bob motion-reduce:animate-none"
+          />
+          <PixelIcon
+            bitmap={PIXEL_ICONS.keyDown}
+            // Negative delay rather than positive: the second key starts
+            // mid-cycle on the first frame instead of sitting still for half
+            // a second before joining in.
+            className="h-4 w-6 animate-key-bob [animation-delay:-0.5s] motion-reduce:animate-none"
+          />
+        </span>
+      </div>
     </main>
   );
 }
