@@ -27,7 +27,7 @@ I have a dog who absolutely adores me whenever I have food to give her. Otherwis
 
 </details>
 
-</br>
+<br>
 
 <details>
 <summary>other interests</summary>
