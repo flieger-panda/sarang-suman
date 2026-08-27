@@ -2,7 +2,7 @@
 
 ## what i do
 
-I'm Sarang Suman, a software developer and 3rd year Computer Science student at Georgia Tech in Atlanta, specializing in the Intelligence and People threads. 
+I'm Sarang Suman, a software developer and 3rd year Computer Science student at Georgia Tech in Atlanta, specializing in the Intelligence and People threads (AI and HCI). 
 I do work in full-stack software development, data analysis/ML in Python, and web development.
 
 I became interested in software engineering and development because I love immersing myself in building things that I can see working in real-time. I have experience with building IoT systems and infrastructure, writing REST APIs in Python, and applying software to manufacturing. 
@@ -13,10 +13,8 @@ I have a dog who absolutely adores me whenever I have food to give her. Otherwis
 
 ![My dog](/about/doggo.jpg)
 
-## sportsball
-
 <details>
-<summary><strong>The teams I support</strong></summary>
+<summary><strong>teams I support</strong></summary>
 
 <ul>
 <li>FC Barcelona</li>
@@ -29,18 +27,10 @@ I have a dog who absolutely adores me whenever I have food to give her. Otherwis
 
 </details>
 
-<br>
-
-<p>At an impressionable age, I (correctly) decided that Lionel Messi and LeBron James are the GOATs, so I currently support the 76ers (don't love that I have to), and FC Barcelona.</p>
-
-<img src="/about/lebron.jpeg" alt="LeKing" class="w-140 mx-auto" />
-<p>I also recently started watching F1 and unfortunately fell into the trap of being a Ferrari fan. It's pretty miserable.</p>
-
-<img src="/about/scuderia.jpg" alt="Pit wall of clowns" class="mx-auto" />
-<br>
+</br>
 
 <details>
-<summary>Other Interests</summary>
+<summary>other interests</summary>
 
 <ul>
 <li>Poker</li>
